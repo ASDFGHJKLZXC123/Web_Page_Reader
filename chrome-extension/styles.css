@@ -1,0 +1,543 @@
+/* Scope all styles under .aaw-root to avoid leaking into the host page */
+.aaw-root,
+.aaw-root * {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.aaw-root {
+  --aaw-bg: #1a1a1f;
+  --aaw-surface: #25252d;
+  --aaw-surface-2: #2d2d38;
+  --aaw-border: #35353f;
+  --aaw-border-input: #444452;
+  --aaw-text: #e8e8f0;
+  --aaw-text-muted: #9898b8;
+  --aaw-accent: #6c63ff;
+  --aaw-accent-text: #8b84ff;
+  --aaw-danger: #ff4d4f;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2147483646;
+  width: 340px;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0 0 24px;
+  border-left: 1px solid var(--aaw-border);
+  background: var(--aaw-bg);
+  color: var(--aaw-text);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.4);
+
+  /* Slide in from the right */
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aaw-root::-webkit-scrollbar {
+  width: 4px;
+}
+.aaw-root::-webkit-scrollbar-track {
+  background: transparent;
+}
+.aaw-root::-webkit-scrollbar-thumb {
+  background: var(--aaw-border);
+  border-radius: 2px;
+}
+
+.aaw-hidden {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Header --- */
+.aaw-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  background: var(--aaw-bg);
+  border-bottom: 1px solid var(--aaw-border);
+  margin-bottom: 16px;
+}
+
+.aaw-kicker {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--aaw-accent-text);
+  font-weight: 600;
+}
+
+.aaw-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--aaw-text);
+}
+
+/* --- Fields and sections --- */
+.aaw-field,
+.aaw-result-wrap {
+  margin: 0 16px 16px;
+}
+
+.aaw-field label,
+.aaw-section-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--aaw-text-muted);
+}
+
+/* --- Inputs --- */
+.aaw-root textarea,
+.aaw-root input[type="url"],
+.aaw-root input[type="search"],
+.aaw-root input[type="password"],
+.aaw-root select {
+  width: 100%;
+  background: var(--aaw-surface-2);
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--aaw-text);
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.aaw-root textarea:focus,
+.aaw-root input[type="url"]:focus,
+.aaw-root input[type="search"]:focus,
+.aaw-root input[type="password"]:focus,
+.aaw-root select:focus {
+  border-color: var(--aaw-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+.aaw-root textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.aaw-backend-url {
+  margin-bottom: 8px;
+}
+
+.aaw-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239898b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+/* Selects that sit inline with buttons should not stretch full-width */
+.aaw-actions .aaw-select {
+  width: auto;
+  flex-shrink: 0;
+}
+
+/* --- Buttons --- */
+.aaw-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.aaw-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  background: var(--aaw-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 150ms, opacity 150ms;
+  white-space: nowrap;
+}
+
+.aaw-btn:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.aaw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aaw-btn.accent {
+  background: var(--aaw-accent);
+  color: #fff;
+}
+
+.aaw-btn.ghost {
+  background: transparent;
+  border: 1px solid var(--aaw-border-input);
+  color: var(--aaw-text-muted);
+}
+
+.aaw-btn.ghost:hover:not(:disabled) {
+  border-color: var(--aaw-text-muted);
+  color: var(--aaw-text);
+  filter: none;
+}
+
+/* --- Result area --- */
+.aaw-result {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 6px;
+  background: var(--aaw-surface);
+  color: var(--aaw-text);
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  max-height: 220px;
+  line-height: 1.5;
+}
+
+.aaw-result::-webkit-scrollbar {
+  width: 4px;
+}
+.aaw-result::-webkit-scrollbar-thumb {
+  background: var(--aaw-border);
+  border-radius: 2px;
+}
+
+/* --- Status line --- */
+.aaw-status {
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--aaw-text-muted);
+}
+
+.aaw-settings-meta {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--aaw-text-muted);
+}
+
+/* --- Health card --- */
+.aaw-health-card {
+  padding: 4px 0;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.aaw-health-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 12px;
+}
+
+.aaw-health-row + .aaw-health-row {
+  border-top: 1px solid var(--aaw-border);
+}
+
+.aaw-health-row span {
+  color: var(--aaw-text-muted);
+}
+
+.aaw-health-row strong {
+  font-weight: 600;
+  color: var(--aaw-text);
+  text-align: right;
+}
+
+/* --- Memory search results --- */
+.aaw-search-results {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.aaw-memory-result {
+  padding: 10px 12px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+  transition: border-color 150ms;
+  cursor: default;
+}
+
+.aaw-memory-result:hover {
+  border-color: var(--aaw-accent);
+}
+
+.aaw-memory-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--aaw-text);
+}
+
+.aaw-memory-meta {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--aaw-text-muted);
+}
+
+.aaw-memory-body {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--aaw-text);
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* --- Settings groups --- */
+.aaw-settings-group {
+  margin-bottom: 10px;
+}
+
+.aaw-settings-sublabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--aaw-text-muted);
+}
+
+/* --- Custom Dropdown --- */
+.aaw-root .aaw-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* Dropdown that sits inline with buttons (e.g. the action-type row) */
+.aaw-root .aaw-actions .aaw-dropdown {
+  width: auto;
+  flex-shrink: 0;
+}
+.aaw-root .aaw-actions .aaw-dropdown .aaw-dropdown__trigger {
+  width: auto;
+}
+
+/* Trigger — matches existing input style exactly */
+.aaw-root .aaw-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: var(--aaw-surface-2);
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--aaw-text);
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms, opacity 150ms;
+  user-select: none;
+}
+
+.aaw-root .aaw-dropdown__trigger:hover:not(:disabled) {
+  border-color: var(--aaw-text-muted);
+}
+
+.aaw-root .aaw-dropdown__trigger:focus-visible {
+  border-color: var(--aaw-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* Open state: accent border on trigger */
+.aaw-root .aaw-dropdown--open .aaw-dropdown__trigger {
+  border-color: var(--aaw-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* Disabled state */
+.aaw-root .aaw-dropdown__trigger:disabled,
+.aaw-root .aaw-dropdown--disabled .aaw-dropdown__trigger {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Selected value text inside trigger */
+.aaw-root .aaw-dropdown__value {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--aaw-text);
+}
+
+.aaw-root .aaw-dropdown__value--placeholder {
+  color: var(--aaw-text-muted);
+}
+
+/* Chevron icon — pure CSS, no SVG dependency */
+.aaw-root .aaw-dropdown__chevron {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  position: relative;
+  color: var(--aaw-text-muted);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.aaw-root .aaw-dropdown__chevron::before,
+.aaw-root .aaw-dropdown__chevron::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aaw-root .aaw-dropdown__chevron::before {
+  left: 0;
+  transform: translateY(-50%) rotate(45deg);
+  transform-origin: right center;
+}
+
+.aaw-root .aaw-dropdown__chevron::after {
+  right: 0;
+  transform: translateY(-50%) rotate(-45deg);
+  transform-origin: left center;
+}
+
+/* Rotate chevron when open */
+.aaw-root .aaw-dropdown--open .aaw-dropdown__chevron::before {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.aaw-root .aaw-dropdown--open .aaw-dropdown__chevron::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* Dropdown list panel */
+.aaw-root .aaw-dropdown__list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 2147483647;
+  background: var(--aaw-surface-2);
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 6px;
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+  overflow-y: auto;
+  max-height: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  /* Closed state — transforms out downward + fades */
+  transform: translateY(-6px) scaleY(0.96);
+  transform-origin: top center;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Open state — animates into place */
+.aaw-root .aaw-dropdown--open .aaw-dropdown__list {
+  transform: translateY(0) scaleY(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scrollbar inside list */
+.aaw-root .aaw-dropdown__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.aaw-root .aaw-dropdown__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aaw-root .aaw-dropdown__list::-webkit-scrollbar-thumb {
+  background: var(--aaw-border);
+  border-radius: 2px;
+}
+
+/* Individual option */
+.aaw-root .aaw-dropdown__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 7px 10px 7px 14px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--aaw-text);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  user-select: none;
+  outline: none;
+  list-style: none;
+}
+
+/* Hovered option */
+.aaw-root .aaw-dropdown__option:hover,
+.aaw-root .aaw-dropdown__option:focus-visible {
+  background: rgba(108, 99, 255, 0.08);
+  color: var(--aaw-text);
+}
+
+/* Keyboard-focused option (aria-activedescendant target) */
+.aaw-root .aaw-dropdown__option--active {
+  background: rgba(108, 99, 255, 0.08);
+}
+
+/* Selected option — accent left border + subtle tint */
+.aaw-root .aaw-dropdown__option--selected {
+  border-left-color: var(--aaw-accent);
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--aaw-accent-text);
+  font-weight: 600;
+}
+
+.aaw-root .aaw-dropdown__option--selected:hover,
+.aaw-root .aaw-dropdown__option--selected:focus-visible {
+  background: rgba(108, 99, 255, 0.18);
+}
+
+/* Disabled option */
+.aaw-root .aaw-dropdown__option--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Divider between option groups */
+.aaw-root .aaw-dropdown__divider {
+  height: 1px;
+  background: var(--aaw-border);
+  margin: 4px 0;
+  pointer-events: none;
+}

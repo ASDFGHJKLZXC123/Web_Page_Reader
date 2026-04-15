@@ -1,0 +1,9 @@
+{
+  "name": "ai-assistant-across-websites",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node backend/src/server.js"
+  }
+}
+
