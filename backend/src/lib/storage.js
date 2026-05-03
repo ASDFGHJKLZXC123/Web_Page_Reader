@@ -1,9 +1,29 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataDir = path.join(__dirname, "..", "..", "data");
+function resolveDataDir() {
+  if (!process.env.NOTES_DIR) {
+    return path.join(__dirname, "..", "..", "data");
+  }
+  const resolved = path.resolve(process.env.NOTES_DIR);
+  try {
+    fs.mkdirSync(resolved, { recursive: true });
+    fs.accessSync(resolved, fs.constants.W_OK);
+  } catch (err) {
+    console.error(`[storage] FATAL: NOTES_DIR=${resolved} cannot be created or is not writable.`);
+    console.error(`[storage] Underlying error: ${err.message}`);
+    process.exit(1);
+  }
+  return resolved;
+}
+
+const dataDir = resolveDataDir();
 const dbFile = path.join(dataDir, "db.json");
 const embeddingsFile = path.join(dataDir, "embeddings.ndjson");
+
+function getDataDir() {
+  return dataDir;
+}
 
 const DEFAULT_DB = {
   memory: [],
@@ -198,6 +218,7 @@ module.exports = {
   appendMemory,
   deleteMemory,
   getActions,
+  getDataDir,
   listMemory,
   loadAllEmbeddings,
   updateTask

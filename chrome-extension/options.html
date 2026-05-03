@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AI Assistant — Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="opt-shell">
+      <header class="opt-header">
+        <div class="opt-kicker">AI Assistant Across Websites</div>
+        <h1 class="opt-title">Options</h1>
+      </header>
+
+      <section class="opt-section">
+        <h2 class="opt-section-title">Notes folder</h2>
+        <p class="opt-section-desc">
+          Mirror saved notes to a folder on disk. Each note becomes one JSON file
+          named <code>mem_&lt;id&gt;.json</code>. Notes still live in the extension's
+          internal storage — this folder is a copy.
+        </p>
+
+        <div class="opt-folder-row">
+          <div class="opt-folder-info">
+            <div class="opt-label">Current folder</div>
+            <div class="opt-folder-name" id="folder-name">Not set</div>
+            <div class="opt-folder-perm" id="folder-perm"></div>
+          </div>
+          <div class="opt-folder-actions">
+            <button id="btn-pick" class="opt-btn opt-btn-accent" type="button">Choose folder</button>
+            <button id="btn-grant" class="opt-btn opt-btn-accent" type="button" hidden>Grant access</button>
+            <button id="btn-sync" class="opt-btn" type="button" disabled>Sync now</button>
+            <button id="btn-disconnect" class="opt-btn opt-btn-ghost" type="button" disabled>Disconnect</button>
+          </div>
+        </div>
+
+        <label class="opt-checkbox">
+          <input type="checkbox" id="opt-delete-orphans" />
+          <span>Delete files in the folder that aren't in memory (one-way sync)</span>
+        </label>
+
+        <div id="status" class="opt-status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="opt-section">
+        <h2 class="opt-section-title">Recent activity</h2>
+        <ol id="log" class="opt-log" aria-live="polite"></ol>
+      </section>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

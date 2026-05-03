@@ -20,23 +20,28 @@
   --aaw-danger: #ff4d4f;
 
   position: fixed;
-  top: 0;
-  right: 0;
+  top: 12px;
+  right: 12px;
   z-index: 2147483646;
   width: 340px;
-  height: 100vh;
+  min-height: 90px;
+  max-height: calc(100dvh - 24px);
   overflow-y: auto;
+  overflow-x: hidden; /* clips sliding-view animation overflow without a scroll container */
+  scrollbar-gutter: stable; /* reserves scrollbar space so layout doesn't shift when it appears */
   padding: 0 0 24px;
-  border-left: 1px solid var(--aaw-border);
+  border: 1px solid var(--aaw-border);
+  border-radius: 14px;
   background: var(--aaw-bg);
   color: var(--aaw-text);
-  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
 
-  /* Slide in from the right */
+  /* Slide in from the right; height animates during view switches */
   transform: translateX(0);
   opacity: 1;
   transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+              opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              height 220ms ease-in-out;
 }
 
 .aaw-root::-webkit-scrollbar {
@@ -51,7 +56,7 @@
 }
 
 .aaw-hidden {
-  transform: translateX(100%);
+  transform: translateX(calc(100% + 12px));
   opacity: 0;
   pointer-events: none;
 }
@@ -321,6 +326,15 @@
   color: var(--aaw-text-muted);
 }
 
+.aaw-settings-hint {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--aaw-text);
+  opacity: 0.85;
+  word-break: break-word;
+}
+
 /* --- Custom Dropdown --- */
 .aaw-root .aaw-dropdown {
   position: relative;
@@ -540,4 +554,325 @@
   background: var(--aaw-border);
   margin: 4px 0;
   pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Settings navigation system
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* --- Icon-only ghost button ------------------------------------------------ */
+
+/*
+  SVG markup for reference — embed directly in HTML, not via CSS content:
+
+  Gear (settings):
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83
+             l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21
+             a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33
+             l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15
+             a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9
+             a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06
+             A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0
+             v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06
+             a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9
+             a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
+             a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+
+  Back arrow (settings header):
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+*/
+
+.aaw-root .aaw-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--aaw-text-muted);
+  cursor: pointer;
+  outline: none;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+
+.aaw-root .aaw-btn-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.aaw-root .aaw-btn-icon:hover:not(:disabled) {
+  background: rgba(108, 99, 255, 0.10);
+  color: var(--aaw-accent-text);
+  border-color: transparent;
+}
+
+.aaw-root .aaw-btn-icon:focus-visible {
+  border-color: var(--aaw-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+  color: var(--aaw-text);
+}
+
+.aaw-root .aaw-btn-icon:active:not(:disabled) {
+  background: rgba(108, 99, 255, 0.16);
+}
+
+.aaw-root .aaw-btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Active / settings-open state — icon fills with accent colour */
+.aaw-root .aaw-btn-icon--active {
+  background: rgba(108, 99, 255, 0.14);
+  color: var(--aaw-accent-text);
+  border-color: transparent;
+}
+
+.aaw-root .aaw-btn-icon--active:hover:not(:disabled) {
+  background: rgba(108, 99, 255, 0.22);
+  color: var(--aaw-accent-text);
+}
+
+/* --- Settings view header -------------------------------------------------- */
+
+/*
+  Drop-in replacement for .aaw-header when the settings view is active.
+  Inherits the exact same sticky/border/spacing rules; adds a three-column
+  flex layout: [back-btn] [centered heading] [phantom spacer].
+*/
+.aaw-root .aaw-settings-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 12px;
+  background: var(--aaw-bg);
+  border-bottom: 1px solid var(--aaw-border);
+  margin-bottom: 16px;
+}
+
+.aaw-root .aaw-settings-header__back {
+  /* inherits .aaw-btn-icon — just applies the class in markup */
+  justify-self: start;
+}
+
+.aaw-root .aaw-settings-header__title {
+  justify-self: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aaw-text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.aaw-root .aaw-settings-header__spacer {
+  /* empty right-column placeholder keeps the title truly centred */
+  justify-self: end;
+  width: 30px;
+  height: 30px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Header cross-fade — main header and settings header share the same
+   sticky slot; JS toggles .aaw-header--hidden on whichever is inactive.    */
+.aaw-root .aaw-header,
+.aaw-root .aaw-settings-header {
+  transition: opacity 120ms ease-in-out;
+}
+
+.aaw-root .aaw-header--hidden,
+.aaw-root .aaw-settings-header--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Two-view slide container ---------------------------------------------- */
+
+/*
+  Structure expected in HTML:
+
+  <div class="aaw-view-container">
+    <div class="aaw-view aaw-view--main">   ...main content...   </div>
+    <div class="aaw-view aaw-view--settings aaw-view--hidden"> ...settings... </div>
+  </div>
+
+  Horizontal overflow from the off-screen views is clipped by
+  .aaw-root { overflow-x: hidden } — the container itself is overflow: visible
+  so that absolutely-positioned dropdown lists can escape downward without
+  being clipped. The panel itself (overflow-y: auto) handles vertical scrolling.
+*/
+.aaw-root .aaw-view-container {
+  position: relative;
+  overflow: visible;
+  min-height: 0;
+}
+
+.aaw-root .aaw-view {
+  width: 100%;
+  /* Views are stacked; the hidden one is pulled off-screen via translateX. */
+  will-change: transform, opacity;
+  transition:
+    transform  220ms ease-in-out,
+    opacity    220ms ease-in-out;
+}
+
+/* Visible / active state — in the viewport at rest */
+.aaw-root .aaw-view:not(.aaw-view--hidden) {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/*
+  Hidden / offscreen state.
+  Default direction: main slides LEFT when settings opens (hidden = went left).
+  Settings default origin: comes in FROM the right.
+
+  JS should add .aaw-view--exit-left or .aaw-view--enter-right as appropriate,
+  but sane defaults are baked in so the simplest JS (toggle .aaw-view--hidden)
+  already produces a right-to-left navigation feel.
+*/
+.aaw-root .aaw-view--hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Main view exits to the LEFT when settings opens */
+.aaw-root .aaw-view--main.aaw-view--hidden {
+  transform: translateX(-100%);
+}
+
+/* Settings view enters/exits from/to the RIGHT */
+.aaw-root .aaw-view--settings.aaw-view--hidden {
+  transform: translateX(100%);
+}
+
+/*
+  Reverse direction classes — applied by JS on the back-navigation path so
+  the animation plays in the correct direction (settings exits right → main
+  re-enters from left).  JS removes them after the transition ends.
+*/
+.aaw-root .aaw-view--main.aaw-view--entering {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.aaw-root .aaw-view--settings.aaw-view--exiting {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Unified header navigation transitions
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Header needs position:relative so the abs-positioned settings title
+   is constrained to the header box (sticky is non-static, so it already
+   establishes a containing block — this comment is just for clarity).      */
+
+/* Right-side button cluster in the header */
+.aaw-root .aaw-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Brand group takes the remaining flex space and fades on settings open */
+.aaw-root .aaw-header-brand {
+  flex: 1;
+  transition: opacity 120ms ease-in-out;
+}
+
+/* "Settings" heading inside the header — absolutely centred, hidden in main */
+.aaw-root .aaw-header-settings-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aaw-text);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease-in-out;
+  user-select: none;
+}
+
+/* Back button — hidden in main view */
+.aaw-root .aaw-btn-back {
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out, background 150ms, color 150ms, border-color 150ms;
+}
+
+/* ── Settings-open state ───────────────────────────────────────────────────── */
+.aaw-root.aaw-settings-open .aaw-header-brand {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.aaw-root.aaw-settings-open .aaw-header-settings-title {
+  opacity: 1;
+}
+
+.aaw-root.aaw-settings-open .aaw-btn-back {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Visually hidden (screen-reader only) ──────────────────────────────────── */
+.aaw-root .aaw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reduced motion — disable all transitions/animations inside the panel ──── */
+@media (prefers-reduced-motion: reduce) {
+  .aaw-root,
+  .aaw-root * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

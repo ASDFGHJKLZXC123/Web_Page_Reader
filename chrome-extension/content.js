@@ -14,29 +14,32 @@
       label:          "Google Gemini",
       keyPlaceholder: "AIza…",
       models: [
-        { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash (recommended)" },
-        { value: "gemini-2.5-pro",   label: "Gemini 2.5 Pro" },
-        { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
-        { value: "gemini-1.5-pro",   label: "Gemini 1.5 Pro" }
+        { value: "gemini-2.5-flash",              label: "Gemini 2.5 Flash (recommended)" },
+        { value: "gemini-2.5-pro",                label: "Gemini 2.5 Pro" },
+        { value: "gemini-2.5-flash-lite",         label: "Gemini 2.5 Flash-Lite" },
+        { value: "gemini-3.1-pro-preview",        label: "Gemini 3.1 Pro (preview)" },
+        { value: "gemini-3-flash-preview",        label: "Gemini 3 Flash (preview)" },
+        { value: "gemini-3.1-flash-lite-preview", label: "Gemini 3.1 Flash-Lite (preview)" }
       ]
     },
     openai: {
       label:          "OpenAI",
       keyPlaceholder: "sk-…",
       models: [
-        { value: "gpt-4o",       label: "GPT-4o (recommended)" },
-        { value: "gpt-4o-mini",  label: "GPT-4o Mini" },
-        { value: "gpt-4-turbo",  label: "GPT-4 Turbo" },
-        { value: "gpt-3.5-turbo",label: "GPT-3.5 Turbo" }
+        { value: "gpt-5.5",      label: "GPT-5.5 (recommended)" },
+        { value: "gpt-5.4",      label: "GPT-5.4" },
+        { value: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+        { value: "gpt-5.4-nano", label: "GPT-5.4 Nano" }
       ]
     },
     anthropic: {
       label:          "Anthropic Claude",
       keyPlaceholder: "sk-ant-…",
       models: [
-        { value: "claude-sonnet-4-6",       label: "Claude Sonnet 4.6 (recommended)" },
-        { value: "claude-opus-4-6",         label: "Claude Opus 4.6" },
-        { value: "claude-haiku-4-5-20251001",label: "Claude Haiku 4.5" }
+        { value: "claude-sonnet-4-6",        label: "Claude Sonnet 4.6 (recommended)" },
+        { value: "claude-opus-4-7",          label: "Claude Opus 4.7" },
+        { value: "claude-haiku-4-5-20251001",label: "Claude Haiku 4.5" },
+        { value: "claude-opus-4-6",          label: "Claude Opus 4.6 (legacy)" }
       ]
     }
   };
@@ -71,6 +74,47 @@
   // Tracks the latest saved key per provider so switching providers restores it.
   let _liveApiKeys = { gemini: "", openai: "", anthropic: "" };
 
+  // Two-view navigation state
+  let _settingsOpen  = false;
+  let _viewMain      = null;
+  let _viewSettings  = null;
+  let _gearButton    = null;
+  let _backButton    = null;
+  let _headerBrand   = null;
+  let _settingsTitleEl = null;
+  let _liveRegion    = null;
+
+  // Style the host page's scrollbar to match the panel's dark theme so it
+  // blends into the panel's right edge instead of appearing as a light strip.
+  function _applyHostScrollbarStyle() {
+    if (document.getElementById("aaw-sb-style")) return;
+    const s = document.createElement("style");
+    s.id = "aaw-sb-style";
+    // Use the same token values as --aaw-bg and --aaw-border-input.
+    s.textContent = [
+      "html::-webkit-scrollbar { background: #1a1a1f; }",
+      "html::-webkit-scrollbar-track { background: #1a1a1f; }",
+      "html::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }",
+      "html { scrollbar-color: #444452 #1a1a1f; scrollbar-width: thin; }"
+    ].join("\n");
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  function _removeHostScrollbarStyle() {
+    const s = document.getElementById("aaw-sb-style");
+    if (s) s.remove();
+  }
+
+  function _openPanel() {
+    _applyHostScrollbarStyle();
+    root.classList.remove("aaw-hidden");
+  }
+
+  function _closePanel() {
+    root.classList.add("aaw-hidden");
+    _removeHostScrollbarStyle();
+  }
+
   function debounce(fn, ms) {
     let timer;
     return (...args) => {
@@ -102,7 +146,7 @@
       return Promise.resolve({
         backendUrl: "", llmProvider: "gemini",
         geminiApiKey: "", openaiApiKey: "", anthropicApiKey: "",
-        geminiModel: "gemini-2.5-flash", openaiModel: "gpt-4o",
+        geminiModel: "gemini-2.5-flash", openaiModel: "gpt-5.5",
         anthropicModel: "claude-sonnet-4-6"
       });
     }
@@ -115,7 +159,7 @@
           openaiApiKey:   result.openaiApiKey   || "",
           anthropicApiKey:result.anthropicApiKey|| "",
           geminiModel:    result.geminiModel    || "gemini-2.5-flash",
-          openaiModel:    result.openaiModel    || "gpt-4o",
+          openaiModel:    result.openaiModel    || "gpt-5.5",
           anthropicModel: result.anthropicModel || "claude-sonnet-4-6"
         });
       });
@@ -147,6 +191,38 @@
 
   function isLocalMode() {
     return !remoteBackendUrl;
+  }
+
+  function openOptionsPage() {
+    // chrome.runtime.openOptionsPage is unavailable in content scripts, so we
+    // delegate to the service worker via runtime messaging.
+    try {
+      chrome.runtime.sendMessage({ type: "OPEN_OPTIONS" }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn("[aaw] openOptionsPage failed:", chrome.runtime.lastError.message);
+        }
+      });
+    } catch (err) {
+      console.warn("[aaw] openOptionsPage threw:", err && err.message);
+    }
+  }
+
+  function renderNotesFolderHint(el, folderName) {
+    if (!el) return;
+    el.textContent = folderName
+      ? `Current folder: ${folderName}`
+      : "Not set — click Configure to choose a folder.";
+  }
+
+  function refreshNotesFolderHint(el) {
+    const storage = getStorageArea();
+    if (!storage) {
+      renderNotesFolderHint(el, "");
+      return;
+    }
+    storage.get(["notesFolderName"], (res) => {
+      renderNotesFolderHint(el, res.notesFolderName || "");
+    });
   }
 
   function updateBackendMeta() {
@@ -305,6 +381,7 @@
     addRow("Model",    model);
     addRow("Memory",   `${memoryCount} items`);
     addRow("Tasks",    String(taskCount));
+    if (data.notesDir) addRow("Notes dir", data.notesDir);
   }
 
   async function checkBackend() {
@@ -314,6 +391,92 @@
       renderHealthStatus(data);
     } catch (error) {
       if (settingsStatus) settingsStatus.textContent = `Unavailable: ${error.message}`;
+    }
+  }
+
+  // Smoothly resizes the panel from its current rendered height to toHeight (px).
+  // Called before view-switch class changes so the browser sees the "from" height
+  // before the "to" height is set. After the transition ends, the explicit height
+  // is cleared so the panel returns to natural content-sized mode.
+  function _animatePanelHeight(toHeight) {
+    if (!root) return;
+    const fromHeight = root.getBoundingClientRect().height;
+    if (Math.abs(fromHeight - toHeight) < 2) return; // skip trivial differences
+    root.style.height = fromHeight + "px";
+    root.style.transition = "height 220ms ease-in-out";
+    // Force a reflow so the browser commits the "from" state before changing to "to".
+    root.getBoundingClientRect();
+    root.style.height = toHeight + "px";
+    // Use a named listener so we can filter by propertyName — avoids clearing the
+    // transition prematurely if transform/opacity are also transitioning at the same time.
+    root.addEventListener("transitionend", function onHeightEnd(e) {
+      if (e.propertyName !== "height") return;
+      root.removeEventListener("transitionend", onHeightEnd);
+      root.style.height = "";
+      root.style.transition = "";
+    });
+  }
+
+  // Animates between main and settings views.
+  // open=true: slide to settings; open=false: slide back to main.
+  function setSettingsOpen(open) {
+    _settingsOpen = open;
+
+    if (open) {
+      // Measure the target height before toggling classes. The settings view is
+      // currently position:absolute (hidden), so scrollHeight = its natural height.
+      if (root && _viewSettings) {
+        const headerEl = root.querySelector(".aaw-header");
+        const headerH  = headerEl ? headerEl.offsetHeight : 0;
+        const targetH  = Math.min(headerH + _viewSettings.scrollHeight, window.innerHeight - 24);
+        _animatePanelHeight(targetH);
+      }
+
+      if (_viewMain)     _viewMain.classList.add("aaw-view--hidden");
+      if (_viewSettings) _viewSettings.classList.remove("aaw-view--hidden");
+      root.classList.add("aaw-settings-open");
+      if (_gearButton) {
+        _gearButton.classList.add("aaw-btn-icon--active");
+        _gearButton.setAttribute("aria-expanded", "true");
+      }
+      if (_liveRegion) _liveRegion.textContent = "Settings";
+
+      // Defer health check until settings is actually visible.
+      checkBackend();
+
+      // Focus back button after the CSS transition; fall back to a timer.
+      if (_backButton) {
+        let focusDone = false;
+        const doFocus = () => { if (!focusDone) { focusDone = true; _backButton.focus(); } };
+        if (_viewSettings) _viewSettings.addEventListener("transitionend", doFocus, { once: true });
+        setTimeout(doFocus, 270);
+      }
+    } else {
+      // Measure the target height before toggling classes. The main view is
+      // currently position:absolute (hidden), so scrollHeight = its natural height.
+      if (root && _viewMain) {
+        const headerEl = root.querySelector(".aaw-header");
+        const headerH  = headerEl ? headerEl.offsetHeight : 0;
+        const targetH  = Math.min(headerH + _viewMain.scrollHeight, window.innerHeight - 24);
+        _animatePanelHeight(targetH);
+      }
+
+      if (_viewMain)     _viewMain.classList.remove("aaw-view--hidden");
+      if (_viewSettings) _viewSettings.classList.add("aaw-view--hidden");
+      root.classList.remove("aaw-settings-open");
+      if (_gearButton) {
+        _gearButton.classList.remove("aaw-btn-icon--active");
+        _gearButton.setAttribute("aria-expanded", "false");
+      }
+      if (_liveRegion) _liveRegion.textContent = "Main view";
+
+      // Focus gear button after transition so keyboard users return to a known landmark.
+      if (_gearButton) {
+        let focusDone = false;
+        const doFocus = () => { if (!focusDone) { focusDone = true; _gearButton.focus(); } };
+        if (_viewMain) _viewMain.addEventListener("transitionend", doFocus, { once: true });
+        setTimeout(doFocus, 270);
+      }
     }
   }
 
@@ -691,6 +854,7 @@
           break;
         case "Escape":
           e.preventDefault();
+          e.stopPropagation(); // prevent bubbling to root Escape → settings handler
           _close();
           trigger.focus();
           break;
@@ -738,22 +902,70 @@
     root.setAttribute("role", "complementary");
     root.setAttribute("aria-label", "Workspace Assistant panel");
 
-    // --- Header ---
+    // --- Header (unified — morphs between main and settings views) ---
     const header = document.createElement("div");
     header.className = "aaw-header";
-    const headerText = document.createElement("div");
+
+    // Back button — invisible in main, slides in when settings opens.
+    _backButton = document.createElement("button");
+    _backButton.type = "button";
+    _backButton.className = "aaw-btn-icon aaw-btn-back";
+    _backButton.setAttribute("aria-label", "Back to main view");
+    _backButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';
+    _backButton.addEventListener("click", () => setSettingsOpen(false));
+    header.appendChild(_backButton);
+
+    // Brand group — visible in main, fades out in settings.
+    _headerBrand = document.createElement("div");
+    _headerBrand.className = "aaw-header-brand";
     const kicker = document.createElement("div");
     kicker.className = "aaw-kicker";
     kicker.textContent = "Workspace Assistant";
     const titleEl = document.createElement("div");
     titleEl.className = "aaw-title";
     titleEl.textContent = "On-page AI";
-    headerText.appendChild(kicker);
-    headerText.appendChild(titleEl);
-    header.appendChild(headerText);
-    const closeButton = createButton("Close", () => root.classList.add("aaw-hidden"), "ghost");
+    _headerBrand.appendChild(kicker);
+    _headerBrand.appendChild(titleEl);
+    header.appendChild(_headerBrand);
+
+    // Settings title — absolutely centred, hidden in main, visible in settings.
+    _settingsTitleEl = document.createElement("div");
+    _settingsTitleEl.className = "aaw-header-settings-title";
+    _settingsTitleEl.textContent = "Settings";
+    _settingsTitleEl.setAttribute("aria-hidden", "true"); // view region label covers AT
+    header.appendChild(_settingsTitleEl);
+
+    // Right-side controls: gear + close.
+    const headerRight = document.createElement("div");
+    headerRight.className = "aaw-header-right";
+
+    _gearButton = document.createElement("button");
+    _gearButton.type = "button";
+    _gearButton.className = "aaw-btn-icon";
+    _gearButton.setAttribute("aria-label", "Open settings");
+    _gearButton.setAttribute("aria-expanded", "false");
+    _gearButton.setAttribute("aria-controls", "aaw-settings-view");
+    _gearButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+    _gearButton.addEventListener("click", () => setSettingsOpen(!_settingsOpen));
+    headerRight.appendChild(_gearButton);
+
+    const closeButton = createButton("Close", () => {
+      // Reset to main view instantly (no animation) before hiding the panel.
+      if (_settingsOpen) {
+        _settingsOpen = false;
+        if (_viewMain)     _viewMain.classList.remove("aaw-view--hidden");
+        if (_viewSettings) _viewSettings.classList.add("aaw-view--hidden");
+        root.classList.remove("aaw-settings-open");
+        if (_gearButton) {
+          _gearButton.classList.remove("aaw-btn-icon--active");
+          _gearButton.setAttribute("aria-expanded", "false");
+        }
+      }
+      _closePanel();
+    }, "ghost");
     closeButton.setAttribute("aria-label", "Close panel");
-    header.appendChild(closeButton);
+    headerRight.appendChild(closeButton);
+    header.appendChild(headerRight);
 
     // --- Instruction ---
     instructionInput = document.createElement("textarea");
@@ -840,12 +1052,9 @@
     searchResults.setAttribute("aria-live", "polite");
     searchWrap.appendChild(searchResults);
 
-    // --- Settings ---
+    // --- Settings (goes into its own view; no redundant heading needed) ---
     const settingsWrap = document.createElement("div");
     settingsWrap.className = "aaw-field";
-    const settingsLabel = document.createElement("label");
-    settingsLabel.textContent = "Settings";
-    settingsWrap.appendChild(settingsLabel);
 
     // Mode / status indicator
     settingsMeta = document.createElement("div");
@@ -923,6 +1132,30 @@
     aiActions.appendChild(createButton("Save AI Settings", persistAiSettings, "accent"));
     settingsWrap.appendChild(aiActions);
 
+    // Notes folder mirror (only meaningful in built-in mode; opens the options page)
+    const notesFolderWrap = document.createElement("div");
+    notesFolderWrap.className = "aaw-settings-group";
+    const notesFolderLabel = document.createElement("div");
+    notesFolderLabel.className = "aaw-settings-sublabel";
+    notesFolderLabel.textContent = "Notes folder (mirror saved notes to disk)";
+    const notesFolderHint = document.createElement("div");
+    notesFolderHint.className = "aaw-settings-hint";
+    notesFolderHint.textContent = "Loading…";
+    notesFolderWrap.appendChild(notesFolderLabel);
+    notesFolderWrap.appendChild(notesFolderHint);
+    const notesFolderActions = document.createElement("div");
+    notesFolderActions.className = "aaw-actions";
+    notesFolderActions.appendChild(createButton("Configure", openOptionsPage, "ghost"));
+    notesFolderWrap.appendChild(notesFolderActions);
+    settingsWrap.appendChild(notesFolderWrap);
+    refreshNotesFolderHint(notesFolderHint);
+    if (chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area !== "local" || !changes.notesFolderName) return;
+        renderNotesFolderHint(notesFolderHint, changes.notesFolderName.newValue);
+      });
+    }
+
     // Remote backend URL (optional / advanced)
     const backendWrap = document.createElement("div");
     backendWrap.className = "aaw-settings-group";
@@ -950,24 +1183,80 @@
     settingsStatus.textContent = "Run a connection test to load status.";
     settingsWrap.appendChild(settingsStatus);
 
-    // Assemble
+    // --- Two-view container ---
+    const viewContainer = document.createElement("div");
+    viewContainer.className = "aaw-view-container";
+
+    // Main view: all the working-panel content.
+    _viewMain = document.createElement("div");
+    _viewMain.className = "aaw-view aaw-view--main";
+    _viewMain.setAttribute("role", "region");
+    _viewMain.setAttribute("aria-label", "Assistant tools");
+    _viewMain.appendChild(instructionWrap);
+    _viewMain.appendChild(actionsFieldWrap);
+    _viewMain.appendChild(resultWrap);
+    _viewMain.appendChild(memoryWrap);
+    _viewMain.appendChild(searchWrap);
+
+    // Settings view: hidden until gear button is clicked.
+    _viewSettings = document.createElement("div");
+    _viewSettings.id = "aaw-settings-view"; // matches aria-controls on gear button
+    _viewSettings.className = "aaw-view aaw-view--settings aaw-view--hidden";
+    _viewSettings.setAttribute("role", "region");
+    _viewSettings.setAttribute("aria-label", "Settings");
+    _viewSettings.appendChild(settingsWrap);
+
+    viewContainer.appendChild(_viewMain);
+    viewContainer.appendChild(_viewSettings);
+
+    // Screen-reader live region for navigation announcements.
+    _liveRegion = document.createElement("div");
+    _liveRegion.setAttribute("role", "status");
+    _liveRegion.setAttribute("aria-live", "polite");
+    _liveRegion.setAttribute("aria-atomic", "true");
+    _liveRegion.className = "aaw-sr-only";
+
+    // Assemble root
     root.appendChild(header);
-    root.appendChild(instructionWrap);
-    root.appendChild(actionsFieldWrap);
-    root.appendChild(resultWrap);
-    root.appendChild(memoryWrap);
-    root.appendChild(searchWrap);
-    root.appendChild(settingsWrap);
+    root.appendChild(_liveRegion);
+    root.appendChild(viewContainer);
     document.documentElement.appendChild(root);
+
+    // Escape key: close settings → close panel (dropdowns stop propagation, so
+    // this only fires when no dropdown list is open).
+    root.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (_ddCurrentOpen) return; // defensive — shouldn't reach here after stopPropagation fix
+      if (_settingsOpen) {
+        setSettingsOpen(false);
+      } else {
+        _closePanel();
+      }
+    });
 
     updateBackendMeta();
   }
 
   async function togglePanel() {
     if (!root) await buildPanel();
-    root.classList.toggle("aaw-hidden");
-    if (!root.classList.contains("aaw-hidden")) {
-      void checkBackend();
+
+    if (root.classList.contains("aaw-hidden")) {
+      // Opening: reveal the panel. checkBackend() is deferred to when
+      // the user opens settings (avoids writing to a hidden element).
+      _openPanel();
+    } else {
+      // Closing: silently reset to main view so next open is always fresh.
+      if (_settingsOpen) {
+        _settingsOpen = false;
+        if (_viewMain)     _viewMain.classList.remove("aaw-view--hidden");
+        if (_viewSettings) _viewSettings.classList.add("aaw-view--hidden");
+        root.classList.remove("aaw-settings-open");
+        if (_gearButton) {
+          _gearButton.classList.remove("aaw-btn-icon--active");
+          _gearButton.setAttribute("aria-expanded", "false");
+        }
+      }
+      _closePanel();
     }
   }
 

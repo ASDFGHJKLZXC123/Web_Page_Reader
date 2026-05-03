@@ -27,6 +27,7 @@ const {
   appendMemory,
   deleteMemory,
   getActions,
+  getDataDir,
   listMemory,
   loadAllEmbeddings,
   updateTask
@@ -453,6 +454,7 @@ const server = http.createServer(async (request, response) => {
         host: HOST,
         port: PORT,
         backendUrl: `http://${HOST}:${PORT}`,
+        notesDir: getDataDir(),
         gemini: {
           configured: isGeminiConfigured(),
           model: getGeminiModel(),

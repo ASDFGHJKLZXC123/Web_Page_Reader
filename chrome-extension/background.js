@@ -165,7 +165,7 @@ async function getActiveProvider() {
   const keyMap = { gemini: "geminiApiKey", openai: "openaiApiKey", anthropic: "anthropicApiKey" };
   const modelMap = {
     gemini:    settings.geminiModel    || "gemini-2.5-flash",
-    openai:    settings.openaiModel    || "gpt-4o",
+    openai:    settings.openaiModel    || "gpt-5.5",
     anthropic: settings.anthropicModel || "claude-sonnet-4-6"
   };
   return {
@@ -550,6 +550,10 @@ async function handleMemorySave(body) {
     await storageSet({ embeddings });
   }
 
+  // Notify the options page (if open) so it can mirror the entry to disk.
+  // Throws when no listener is registered — swallow it.
+  chrome.runtime.sendMessage({ type: "MEMORY_SAVED", item }).catch(() => {});
+
   return { item };
 }
 
@@ -709,8 +713,16 @@ async function routeMessage(message) {
     case "ACTION_RUN":     return handleActionRun(message);
     case "ACTION_STATE":   return handleActionState();
     case "TASK_UPDATE":    return handleTaskUpdate(message.id, message.patch);
+    case "OPEN_OPTIONS":   return handleOpenOptions();
     default:               throw new Error(`Unknown message type: ${message.type}`);
   }
+}
+
+// chrome.runtime.openOptionsPage() is not exposed to content scripts, so the
+// content script asks the service worker to open the options page on its behalf.
+async function handleOpenOptions() {
+  await chrome.runtime.openOptionsPage();
+  return { ok: true };
 }
 
 // ============================================================
