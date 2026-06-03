@@ -2,52 +2,381 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>AI Assistant — Options</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Assistant — Settings</title>
+    <link rel="icon" href="icons/icon-32.png" />
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
-    <main class="opt-shell">
-      <header class="opt-header">
-        <div class="opt-kicker">AI Assistant Across Websites</div>
-        <h1 class="opt-title">Options</h1>
-      </header>
-
-      <section class="opt-section">
-        <h2 class="opt-section-title">Notes folder</h2>
-        <p class="opt-section-desc">
-          Mirror saved notes to a folder on disk. Each note becomes one JSON file
-          named <code>mem_&lt;id&gt;.json</code>. Notes still live in the extension's
-          internal storage — this folder is a copy.
-        </p>
-
-        <div class="opt-folder-row">
-          <div class="opt-folder-info">
-            <div class="opt-label">Current folder</div>
-            <div class="opt-folder-name" id="folder-name">Not set</div>
-            <div class="opt-folder-perm" id="folder-perm"></div>
-          </div>
-          <div class="opt-folder-actions">
-            <button id="btn-pick" class="opt-btn opt-btn-accent" type="button">Choose folder</button>
-            <button id="btn-grant" class="opt-btn opt-btn-accent" type="button" hidden>Grant access</button>
-            <button id="btn-sync" class="opt-btn" type="button" disabled>Sync now</button>
-            <button id="btn-disconnect" class="opt-btn opt-btn-ghost" type="button" disabled>Disconnect</button>
+    <div class="opt-app">
+      <aside class="opt-sidebar" aria-label="Settings sections">
+        <div class="opt-brand">
+          <img class="opt-brand-logo" src="icons/logo.svg" width="40" height="40" alt="" />
+          <div class="opt-brand-copy">
+            <div class="opt-kicker">AI Assistant</div>
+            <div class="opt-brand-title">Settings</div>
           </div>
         </div>
+        <nav class="opt-nav" aria-label="Settings navigation">
+          <div class="opt-nav-group">
+            <div class="opt-nav-group-label">Preferences</div>
+            <a class="opt-nav-link" href="#appearance" data-section="appearance">Appearance</a>
+            <a class="opt-nav-link" href="#ai" data-section="ai">AI Provider</a>
+            <a class="opt-nav-link" href="#backend" data-section="backend">Backend</a>
+          </div>
+          <div class="opt-nav-group">
+            <div class="opt-nav-group-label">Data &amp; Privacy</div>
+            <a class="opt-nav-link" href="#privacy" data-section="privacy">Privacy</a>
+            <a class="opt-nav-link" href="#notes" data-section="notes">Notes Folder</a>
+            <a class="opt-nav-link" href="#duplicates" data-section="duplicates">Duplicates</a>
+            <a class="opt-nav-link" href="#backup" data-section="backup">Backup</a>
+          </div>
+          <div class="opt-nav-group">
+            <div class="opt-nav-group-label">Reference</div>
+            <a class="opt-nav-link" href="#shortcuts" data-section="shortcuts">Shortcuts</a>
+          </div>
+        </nav>
+      </aside>
 
-        <label class="opt-checkbox">
-          <input type="checkbox" id="opt-delete-orphans" />
-          <span>Delete files in the folder that aren't in memory (one-way sync)</span>
-        </label>
+      <main class="opt-main">
+        <header class="opt-header">
+          <h1 class="opt-title" id="opt-page-title">Settings</h1>
+          <div class="opt-badge" id="opt-mode-badge">Local mode</div>
+        </header>
 
-        <div id="status" class="opt-status" role="status" aria-live="polite"></div>
-      </section>
+        <!-- ============================ APPEARANCE ============================ -->
+        <section class="opt-section" id="appearance" aria-labelledby="appearance-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="appearance-h">Appearance</h2>
+              <p class="opt-section-desc">
+                Choose the theme for this settings page and the on-page assistant panel.
+                System follows your operating system's light/dark preference. Dark is the default.
+              </p>
+            </div>
+          </div>
+          <fieldset class="opt-appearance" data-aaw-test="appearance-modes">
+            <legend class="opt-label">Theme</legend>
+            <label class="opt-radio"><input type="radio" name="appearance-mode" value="dark" data-aaw-test="appearance-dark" /><span>Dark</span></label>
+            <label class="opt-radio"><input type="radio" name="appearance-mode" value="light" data-aaw-test="appearance-light" /><span>Light</span></label>
+            <label class="opt-radio"><input type="radio" name="appearance-mode" value="system" data-aaw-test="appearance-system" /><span>System</span></label>
+          </fieldset>
+        </section>
 
-      <section class="opt-section">
-        <h2 class="opt-section-title">Recent activity</h2>
-        <ol id="log" class="opt-log" aria-live="polite"></ol>
-      </section>
-    </main>
+        <!-- ============================ AI ============================ -->
+        <section class="opt-section" id="ai" aria-labelledby="ai-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="ai-h">AI Provider</h2>
+              <p class="opt-section-desc">
+                Choose the LLM, API key, and model used for analysis and rewriting.
+                Keys stay in <code>chrome.storage.local</code> and are never exported in backups by default.
+              </p>
+            </div>
+          </div>
+          <div class="opt-grid">
+            <label class="opt-field">
+              <span class="opt-label">LLM provider</span>
+              <select id="ai-provider" class="opt-input" data-aaw-test="ai-provider"></select>
+            </label>
+            <label class="opt-field">
+              <span class="opt-label">API key</span>
+              <input id="ai-api-key" class="opt-input" type="password" autocomplete="off" data-aaw-test="ai-api-key" />
+            </label>
+            <label class="opt-field">
+              <span class="opt-label">Model</span>
+              <select id="ai-model" class="opt-input" data-aaw-test="ai-model"></select>
+            </label>
+          </div>
+          <div class="opt-actions">
+            <button id="ai-save" class="opt-btn opt-btn-accent" type="button" data-aaw-test="ai-save">Save AI settings</button>
+          </div>
+          <div id="ai-status" class="opt-status" role="status" aria-live="polite"></div>
+        </section>
 
+        <!-- ============================ BACKEND ============================ -->
+        <section class="opt-section" id="backend" aria-labelledby="backend-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="backend-h">Backend</h2>
+              <p class="opt-section-desc">
+                Leave the URL empty to run in built-in mode (the extension service worker handles everything).
+                Set a backend URL to use a remote server.
+              </p>
+            </div>
+          </div>
+          <div class="opt-grid">
+            <label class="opt-field opt-field-wide">
+              <span class="opt-label">Backend URL</span>
+              <input id="backend-url" class="opt-input" type="url" placeholder="http://localhost:3000" data-aaw-test="backend-url" />
+            </label>
+          </div>
+          <div class="opt-actions">
+            <button id="backend-save" class="opt-btn opt-btn-accent" type="button" data-aaw-test="backend-save">Save URL</button>
+            <button id="backend-test" class="opt-btn" type="button" data-aaw-test="backend-test">Test connection</button>
+          </div>
+          <div id="backend-status" class="opt-status" role="status" aria-live="polite"></div>
+        </section>
+
+        <!-- ============================ PRIVACY ============================ -->
+        <section class="opt-section" id="privacy" aria-labelledby="privacy-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="privacy-h">Privacy</h2>
+              <p class="opt-section-desc">Control when page content may leave the browser, redact PII, exclude hosts, and manage retention.</p>
+            </div>
+          </div>
+
+          <div class="opt-grid">
+            <label class="opt-field">
+              <span class="opt-label">AI content mode</span>
+              <select id="privacy-mode" class="opt-input" data-aaw-test="privacy-mode">
+                <option value="auto">Auto</option>
+                <option value="ask">Ask every time</option>
+                <option value="local_only">Local only</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Redaction</div>
+            <div class="opt-checks">
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-redaction-enabled" type="checkbox" data-aaw-test="privacy-redaction-enabled" /><span>Redact before model calls</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-redaction-payload" type="checkbox" data-aaw-test="privacy-redaction-payload" /><span>Apply redaction to model payloads</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-redact-emails" type="checkbox" data-aaw-test="privacy-redact-emails" /><span>Emails</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-redact-phones" type="checkbox" data-aaw-test="privacy-redact-phones" /><span>Phones</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-redact-secrets" type="checkbox" data-aaw-test="privacy-redact-secrets" /><span>Token-like secrets</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-full-url" type="checkbox" data-aaw-test="privacy-full-url" /><span>Send full URL to provider</span></label>
+            </div>
+          </div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Site rules</div>
+            <label class="opt-field">
+              <span class="opt-sublabel">Excluded hosts (one per line)</span>
+              <textarea id="privacy-excluded-hosts" class="opt-input" rows="3" placeholder="example.com&#10;*.sensitive.example" data-aaw-test="privacy-excluded-hosts"></textarea>
+            </label>
+            <label class="opt-field">
+              <span class="opt-sublabel">Host overrides (host=auto|ask|local_only)</span>
+              <textarea id="privacy-host-overrides" class="opt-input" rows="3" placeholder="docs.example.com=ask&#10;*.client.test=local_only" data-aaw-test="privacy-host-overrides"></textarea>
+            </label>
+          </div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Retention</div>
+            <label class="opt-checkbox opt-checkbox-compact"><input id="privacy-retention-enabled" type="checkbox" data-aaw-test="privacy-retention-enabled" /><span>Enable retention cleanup</span></label>
+            <div class="opt-grid opt-grid-tight">
+              <label class="opt-field"><span class="opt-sublabel">Memory days</span><input id="privacy-retention-memory" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-memory" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Contact days</span><input id="privacy-retention-contacts" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-contacts" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Task days</span><input id="privacy-retention-tasks" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-tasks" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Draft days</span><input id="privacy-retention-drafts" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-drafts" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Table row days</span><input id="privacy-retention-table" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-table" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Provenance days</span><input id="privacy-retention-events" class="opt-input" type="number" min="0" step="1" data-aaw-test="privacy-retention-events" /></label>
+            </div>
+          </div>
+
+          <div class="opt-actions">
+            <button id="privacy-save" class="opt-btn opt-btn-accent" type="button" data-aaw-test="privacy-save">Save privacy</button>
+            <button id="privacy-retention-run" class="opt-btn" type="button">Run retention</button>
+            <button id="privacy-provenance-refresh" class="opt-btn" type="button">Refresh provenance</button>
+          </div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Clear data</div>
+            <div class="opt-checks">
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="memory" type="checkbox" /><span>memory</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="embeddings" type="checkbox" /><span>embeddings</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="contacts" type="checkbox" /><span>contacts</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="tasks" type="checkbox" /><span>tasks</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="drafts" type="checkbox" /><span>drafts</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="tableRows" type="checkbox" /><span>tableRows</span></label>
+              <label class="opt-checkbox opt-checkbox-compact"><input data-bucket="privacyEvents" type="checkbox" /><span>privacyEvents</span></label>
+            </div>
+            <div class="opt-grid opt-grid-tight">
+              <label class="opt-field"><span class="opt-sublabel">Clear before</span><input id="privacy-clear-before" class="opt-input" type="date" /></label>
+              <label class="opt-field"><span class="opt-sublabel">Type CLEAR to confirm</span><input id="privacy-clear-confirm" class="opt-input" type="text" placeholder="CLEAR" /></label>
+            </div>
+            <div class="opt-actions">
+              <button id="privacy-clear-run" class="opt-btn opt-btn-danger" type="button">Clear data</button>
+            </div>
+          </div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Provenance (recent)</div>
+            <div id="privacy-provenance-list" class="opt-log opt-log-flat" data-aaw-test="privacy-provenance-list">No provenance loaded yet.</div>
+          </div>
+
+          <div id="privacy-status" class="opt-status" role="status" aria-live="polite"></div>
+        </section>
+
+        <!-- ============================ NOTES FOLDER ============================ -->
+        <section class="opt-section" id="notes" aria-labelledby="notes-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="notes-h">Notes folder</h2>
+              <p class="opt-section-desc">
+                Mirror saved notes to a folder on disk. Each note becomes one JSON file
+                named <code>mem_&lt;id&gt;.json</code>. Notes still live in the extension's
+                internal storage — this folder is a copy.
+              </p>
+            </div>
+          </div>
+
+          <div class="opt-folder-row">
+            <div class="opt-folder-info">
+              <div class="opt-label">Current folder</div>
+              <div class="opt-folder-name" id="folder-name">Not set</div>
+              <div class="opt-folder-perm" id="folder-perm"></div>
+            </div>
+            <div class="opt-folder-actions">
+              <button id="btn-pick" class="opt-btn opt-btn-accent" type="button">Choose folder</button>
+              <button id="btn-grant" class="opt-btn opt-btn-accent" type="button" hidden>Grant access</button>
+              <button id="btn-sync" class="opt-btn" type="button" disabled>Sync now</button>
+              <button id="btn-disconnect" class="opt-btn opt-btn-ghost" type="button" disabled>Disconnect</button>
+            </div>
+          </div>
+
+          <label class="opt-checkbox">
+            <input type="checkbox" id="opt-delete-orphans" />
+            <span>Delete files in the folder that aren't in memory (one-way sync)</span>
+          </label>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Generated exports</div>
+            <label class="opt-checkbox opt-checkbox-compact">
+              <input type="checkbox" id="opt-include-contacts" />
+              <span>Include contact summaries</span>
+            </label>
+            <label class="opt-checkbox opt-checkbox-compact">
+              <input type="checkbox" id="opt-include-tasks" />
+              <span>Include task summaries</span>
+            </label>
+          </div>
+
+          <div class="opt-subsection opt-preview" data-aaw-test="mirror-preview">
+            <div class="opt-label">Export preview</div>
+            <p class="opt-sublabel">
+              Preview the files that would be written to the folder. This is read-only —
+              nothing is written, changed, or deleted.
+            </p>
+            <div class="opt-actions opt-preview-controls">
+              <button id="mirror-preview-run" class="opt-btn" type="button" data-aaw-test="mirror-preview-run">Preview export</button>
+              <input id="mirror-preview-search" class="opt-input opt-preview-search" type="search"
+                     placeholder="Filter generated paths" aria-label="Filter generated export paths"
+                     data-aaw-test="mirror-preview-search" />
+            </div>
+            <div id="mirror-preview-counts" class="opt-preview-counts" data-aaw-test="mirror-preview-counts" aria-live="polite"></div>
+            <div class="opt-preview-grid">
+              <div id="mirror-preview-files" class="opt-preview-files" data-aaw-test="mirror-preview-files" aria-label="Generated files">
+                Run a preview to list generated files.
+              </div>
+              <div class="opt-preview-inspect">
+                <div id="mirror-preview-detail" class="opt-preview-detail" data-aaw-test="mirror-preview-detail" aria-live="polite">
+                  Select a file to inspect its contents.
+                </div>
+                <pre id="mirror-preview-json" class="opt-preview-json" data-aaw-test="mirror-preview-json" aria-label="Selected file JSON"></pre>
+              </div>
+            </div>
+            <div class="opt-preview-deletions-wrap">
+              <div class="opt-sublabel">Deletion preview (one-way sync)</div>
+              <div id="mirror-preview-deletions" class="opt-preview-deletions" data-aaw-test="mirror-preview-deletions" aria-live="polite">
+                Run a preview to see which files one-way sync would delete.
+              </div>
+            </div>
+          </div>
+
+          <div id="status" class="opt-status" role="status" aria-live="polite"></div>
+
+          <div class="opt-subsection">
+            <div class="opt-label">Recent activity</div>
+            <ol id="log" class="opt-log" aria-live="polite"></ol>
+          </div>
+        </section>
+
+        <!-- ============================ DUPLICATES ============================ -->
+        <section class="opt-section" id="duplicates" aria-labelledby="dedupe-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="dedupe-h">Duplicate review</h2>
+              <p class="opt-section-desc">Find and merge repeated saved data without exposing raw page content.</p>
+            </div>
+          </div>
+          <div class="opt-grid">
+            <label class="opt-field">
+              <span class="opt-label">Record type</span>
+              <select id="dedupe-type" class="opt-input" data-aaw-test="dedupe-type">
+                <option value="all">All records</option>
+                <option value="memory">Memory</option>
+                <option value="contact">Contacts</option>
+                <option value="task">Tasks</option>
+                <option value="source">Sources</option>
+              </select>
+            </label>
+            <label class="opt-checkbox opt-checkbox-compact"><input id="dedupe-show-ignored" type="checkbox" data-aaw-test="dedupe-show-ignored" /><span>Show ignored groups</span></label>
+          </div>
+          <div class="opt-actions">
+            <button id="dedupe-scan" class="opt-btn opt-btn-accent" type="button" data-aaw-test="dedupe-scan">Scan duplicates</button>
+          </div>
+          <div id="dedupe-status" class="opt-status" role="status" data-aaw-test="dedupe-status" aria-live="polite">Run a duplicate scan before merging records.</div>
+          <div id="dedupe-candidates" class="opt-dedupe-list" data-aaw-test="dedupe-candidates" aria-live="polite">No scan yet.</div>
+          <div class="opt-subsection">
+            <div class="opt-label">Merge audit</div>
+            <div id="dedupe-audit" class="opt-dedupe-audit" data-aaw-test="dedupe-audit">Audit has not loaded yet.</div>
+          </div>
+        </section>
+
+        <!-- ============================ BACKUP ============================ -->
+        <section class="opt-section" id="backup" aria-labelledby="backup-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="backup-h">Backup</h2>
+              <p class="opt-section-desc">Export or restore local assistant data. API keys are excluded unless Include settings is enabled.</p>
+            </div>
+          </div>
+          <div class="opt-checks">
+            <label class="opt-checkbox opt-checkbox-compact"><input id="backup-include-embeddings" type="checkbox" checked /><span>Include embeddings</span></label>
+            <label class="opt-checkbox opt-checkbox-compact"><input id="backup-include-settings" type="checkbox" /><span>Include settings</span></label>
+            <label class="opt-checkbox opt-checkbox-compact"><input id="backup-include-audit" type="checkbox" /><span>Include dedupe audit</span></label>
+          </div>
+          <textarea id="backup-json" class="opt-input opt-textarea" rows="10" placeholder="Exported backup JSON or paste backup JSON to import" data-aaw-test="backup-json" aria-label="Backup JSON"></textarea>
+          <div class="opt-actions">
+            <button id="backup-export" class="opt-btn opt-btn-accent" type="button">Export</button>
+            <button id="backup-validate" class="opt-btn" type="button">Validate</button>
+            <button id="backup-restore-point" class="opt-btn" type="button">Restore point</button>
+            <button id="backup-import-merge" class="opt-btn" type="button">Merge import</button>
+            <button id="backup-import-replace" class="opt-btn opt-btn-danger" type="button">Replace import</button>
+          </div>
+          <div id="backup-status" class="opt-status" data-aaw-test="backup-status" role="status" aria-live="polite">Backups exclude API keys unless Include settings is enabled.</div>
+        </section>
+
+        <!-- ============================ SHORTCUTS ============================ -->
+        <section class="opt-section" id="shortcuts" aria-labelledby="shortcuts-h">
+          <div class="opt-section-head">
+            <div>
+              <h2 class="opt-section-title" id="shortcuts-h">Keyboard shortcuts</h2>
+              <p class="opt-section-desc">Use the panel without leaving the keyboard.</p>
+            </div>
+          </div>
+          <div class="opt-subsection">
+            <div class="opt-label">Browser commands</div>
+            <div class="opt-shortcut-list" id="shortcut-commands" data-aaw-test="shortcut-commands">Loading…</div>
+          </div>
+          <div class="opt-subsection">
+            <div class="opt-label">In-panel shortcuts</div>
+            <div class="opt-shortcut-list" id="shortcut-panel" data-aaw-test="shortcut-panel"></div>
+          </div>
+          <div class="opt-actions">
+            <button id="shortcut-open-chrome" class="opt-btn" type="button" data-aaw-test="shortcut-open-chrome">Open Chrome shortcuts</button>
+          </div>
+          <div id="shortcut-status" class="opt-status" role="status" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="privacy-utils.js"></script>
+    <script src="mirror-utils.js"></script>
+    <script src="settings-utils.js"></script>
+    <script src="shortcut-utils.js"></script>
     <script src="options.js"></script>
   </body>
 </html>

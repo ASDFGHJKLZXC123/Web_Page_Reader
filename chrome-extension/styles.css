@@ -8,33 +8,51 @@
 }
 
 .aaw-root {
-  --aaw-bg: #1a1a1f;
-  --aaw-surface: #25252d;
-  --aaw-surface-2: #2d2d38;
-  --aaw-border: #35353f;
-  --aaw-border-input: #444452;
-  --aaw-text: #e8e8f0;
-  --aaw-text-muted: #9898b8;
-  --aaw-accent: #6c63ff;
-  --aaw-accent-text: #8b84ff;
+  --aaw-bg: #111317;
+  --aaw-bg-soft: #171a20;
+  --aaw-surface: #1d222a;
+  --aaw-surface-2: #252b35;
+  --aaw-surface-3: #2d3440;
+  --aaw-border: #303845;
+  --aaw-border-input: #3d4654;
+  --aaw-text: #eef2f7;
+  --aaw-text-muted: #9aa7b8;
+  --aaw-accent: #7c6dff;
+  --aaw-accent-text: #a99fff;
+  --aaw-signal: #48d6b5;
+  --aaw-warning: #f7c948;
   --aaw-danger: #ff4d4f;
+  /* Shared theme-aware polish tokens (mirrored in options.css). Dark defaults;
+     the light block below overrides them so surfaces invert cleanly. */
+  --aaw-elevated-bg: #171a20;
+  --aaw-subtle-fill: rgba(255, 255, 255, 0.04);
+  --aaw-hairline: rgba(255, 255, 255, 0.08);
+  --aaw-elevated-shadow: 0 16px 40px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --aaw-highlight-bg: rgba(247, 201, 72, 0.2);
+  --aaw-highlight-text: #ffe27a;
 
   position: fixed;
   top: 12px;
   right: 12px;
   z-index: 2147483646;
-  width: 340px;
+  width: clamp(340px, 34vw, 440px);
+  max-width: calc(100vw - 24px);
   min-height: 90px;
-  max-height: calc(100dvh - 24px);
+  max-height: min(720px, calc(100dvh - 24px));
   overflow-y: auto;
   overflow-x: hidden; /* clips sliding-view animation overflow without a scroll container */
   scrollbar-gutter: stable; /* reserves scrollbar space so layout doesn't shift when it appears */
   padding: 0 0 24px;
   border: 1px solid var(--aaw-border);
-  border-radius: 14px;
-  background: var(--aaw-bg);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 120px),
+    var(--aaw-bg);
   color: var(--aaw-text);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 20px 70px rgba(0, 0, 0, 0.58),
+    0 3px 12px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   /* Slide in from the right; height animates during view switches */
   transform: translateX(0);
@@ -42,6 +60,51 @@
   transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
               opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
               height 220ms ease-in-out;
+}
+
+/* Light theme — opt-in via data-aaw-theme on the panel root. Dark is default. */
+.aaw-root[data-aaw-theme="light"] {
+  --aaw-bg: #f5f6f8;
+  --aaw-bg-soft: #eceef2;
+  --aaw-surface: #ffffff;
+  --aaw-surface-2: #f1f3f6;
+  --aaw-surface-3: #e6e9ee;
+  --aaw-border: #d4d9e0;
+  --aaw-border-input: #c2c9d3;
+  --aaw-text: #1b1f27;
+  --aaw-text-muted: #5a6675;
+  --aaw-accent: #6a5bff;
+  --aaw-accent-text: #5346d8;
+  --aaw-signal: #1ba37e;
+  --aaw-warning: #b9821a;
+  --aaw-danger: #d23436;
+  --aaw-elevated-bg: #ffffff;
+  --aaw-subtle-fill: rgba(17, 19, 23, 0.04);
+  --aaw-hairline: rgba(17, 19, 23, 0.10);
+  --aaw-elevated-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08);
+  --aaw-highlight-bg: rgba(247, 201, 72, 0.55);
+  --aaw-highlight-text: #5b4500;
+
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.025), rgba(0, 0, 0, 0) 120px),
+    var(--aaw-bg);
+  box-shadow:
+    0 20px 70px rgba(15, 23, 42, 0.18),
+    0 3px 12px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* The header hard-codes a dark translucent fill; lighten it under the light theme. */
+.aaw-root[data-aaw-theme="light"] .aaw-header {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+@media (max-width: 390px) {
+  .aaw-root {
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+  }
 }
 
 .aaw-root::-webkit-scrollbar {
@@ -71,9 +134,10 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px 12px;
-  background: var(--aaw-bg);
+  background: rgba(17, 19, 23, 0.94);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--aaw-border);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .aaw-kicker {
@@ -85,15 +149,155 @@
 }
 
 .aaw-title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--aaw-text);
+}
+
+.aaw-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(124, 109, 255, 0.42);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(72, 214, 181, 0.32), transparent 44%),
+    linear-gradient(145deg, rgba(124, 109, 255, 0.34), rgba(255, 255, 255, 0.04)),
+    var(--aaw-surface);
+  color: #f4f2ff;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: opacity 120ms ease-in-out, transform 160ms ease-in-out;
+}
+
+/* Keep the logo identical to dark theme: pin the base surface to the dark
+   literal so the light-theme --aaw-surface (white) does not alter it. */
+.aaw-root[data-aaw-theme="light"] .aaw-logo-mark {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(72, 214, 181, 0.32), transparent 44%),
+    linear-gradient(145deg, rgba(124, 109, 255, 0.34), rgba(255, 255, 255, 0.04)),
+    #1d222a;
 }
 
 /* --- Fields and sections --- */
 .aaw-field,
 .aaw-result-wrap {
   margin: 0 16px 16px;
+}
+
+.aaw-section {
+  margin: 0 12px 12px;
+  padding: 12px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  /* Establish a query container so task layouts respond to the injected
+     panel width (≈340/390/440px) rather than the host viewport. */
+  container: aaw-section / inline-size;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+    var(--aaw-bg-soft);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Heavy dark drop shadow reads as a smudge on light surfaces — soften it. */
+.aaw-root[data-aaw-theme="light"] .aaw-section {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.aaw-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.aaw-section-copy {
+  min-width: 0;
+}
+
+.aaw-section-body {
+  display: grid;
+  gap: 10px;
+}
+
+.aaw-section-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+  flex-shrink: 0;
+  /* Wrap the toggle below the badge on the narrowest panels instead of
+     spilling out of the header. */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Collapsible-section toggle, shaped as a compact ghost pill so it matches the
+   panel's ghost buttons and sits neatly beside the dev badge in the header. */
+.aaw-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 999px;
+  background: var(--aaw-subtle-fill);
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, background 150ms;
+}
+
+.aaw-section-toggle:hover {
+  border-color: var(--aaw-text-muted);
+  color: var(--aaw-text);
+}
+
+.aaw-section-toggle:focus-visible {
+  outline: none;
+  border-color: var(--aaw-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* Compact badge flagging an experimental developer-only workflow. */
+.aaw-dev-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 999px;
+  background: var(--aaw-subtle-fill);
+  color: var(--aaw-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aaw-section-subtitle {
+  margin-top: 2px;
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.aaw-section .aaw-field,
+.aaw-section .aaw-result-wrap {
+  margin: 0;
+}
+
+.aaw-field--compact {
+  margin-bottom: 0;
 }
 
 .aaw-field label,
@@ -111,7 +315,11 @@
 .aaw-root textarea,
 .aaw-root input[type="url"],
 .aaw-root input[type="search"],
+.aaw-root input[type="text"],
+.aaw-root input[type="email"],
+.aaw-root input[type="tel"],
 .aaw-root input[type="password"],
+.aaw-root input[type="date"],
 .aaw-root select {
   width: 100%;
   background: var(--aaw-surface-2);
@@ -125,10 +333,25 @@
   transition: border-color 150ms, box-shadow 150ms;
 }
 
+/* Keep native date affordances (calendar picker) visible on the dark surface. */
+.aaw-root input[type="date"] {
+  appearance: auto;
+}
+
+.aaw-root input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.85;
+  filter: invert(0.75);
+}
+
 .aaw-root textarea:focus,
 .aaw-root input[type="url"]:focus,
 .aaw-root input[type="search"]:focus,
+.aaw-root input[type="text"]:focus,
+.aaw-root input[type="email"]:focus,
+.aaw-root input[type="tel"]:focus,
 .aaw-root input[type="password"]:focus,
+.aaw-root input[type="date"]:focus,
 .aaw-root select:focus {
   border-color: var(--aaw-accent);
   box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
@@ -137,10 +360,6 @@
 .aaw-root textarea {
   resize: vertical;
   min-height: 60px;
-}
-
-.aaw-backend-url {
-  margin-bottom: 8px;
 }
 
 .aaw-select {
@@ -163,24 +382,28 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  column-gap: 8px;
+  row-gap: 8px;
   margin-bottom: 10px;
 }
 
 .aaw-btn {
-  border: none;
+  border: 1px solid transparent;
   border-radius: 6px;
   padding: 6px 14px;
-  background: var(--aaw-accent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0)), var(--aaw-accent);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: filter 150ms, opacity 150ms;
+  transition: filter 150ms, opacity 150ms, border-color 150ms, transform 150ms;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .aaw-btn:hover:not(:disabled) {
   filter: brightness(1.15);
+  transform: translateY(-1px);
 }
 
 .aaw-btn:disabled {
@@ -194,7 +417,7 @@
 }
 
 .aaw-btn.ghost {
-  background: transparent;
+  background: var(--aaw-subtle-fill);
   border: 1px solid var(--aaw-border-input);
   color: var(--aaw-text-muted);
 }
@@ -205,20 +428,400 @@
   filter: none;
 }
 
+.aaw-btn.danger {
+  color: var(--aaw-danger);
+  border-color: color-mix(in srgb, var(--aaw-danger) 40%, transparent);
+}
+
+.aaw-btn.danger:hover:not(:disabled) {
+  border-color: var(--aaw-danger);
+  color: var(--aaw-danger);
+  filter: brightness(1.08);
+}
+
+.aaw-root .aaw-memory-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+/* Secondary controls (action dropdown, Run Action, Page Graph) sit under the
+   primary Save Memory button so Save Memory stays the dominant accent action.
+   Weighted columns: the action dropdown gets the most room (its labels are the
+   longest) while Run Action and Page Graph stay narrower but still usable. */
+.aaw-root .aaw-memory-actions-secondary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+/* When the section is too tight for three weighted columns, stack the secondary
+   controls so each stays readable and tappable. */
+@container aaw-section (max-width: 340px) {
+  .aaw-root .aaw-memory-actions-secondary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aaw-root .aaw-memory-actions .aaw-btn,
+.aaw-root .aaw-memory-actions .aaw-dropdown__trigger {
+  height: 34px;
+  min-height: 34px;
+}
+
+.aaw-root .aaw-memory-actions .aaw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Primary save row: the active-workspace selector sits directly beside Save
+   Memory. The selector flexes to fill the remaining width; Save Memory keeps a
+   useful minimum width so it stays a clear, tappable accent target. Both stay
+   vertically aligned and share the standard 8px gap. */
+.aaw-root .aaw-memory-save-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 8px;
+}
+
+.aaw-root .aaw-memory-actions .aaw-memory-save-row .aaw-dropdown {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+/* The generic `.aaw-actions .aaw-dropdown .aaw-dropdown__trigger { width: auto }`
+   rule still applies inside the save row (it lives under .aaw-actions), leaving
+   the trigger auto-width instead of filling its flexed wrapper. Override it so
+   the trigger fills the dropdown. */
+.aaw-root .aaw-memory-actions .aaw-memory-save-row .aaw-dropdown__trigger {
+  width: 100%;
+}
+
+/* Keep the primary Save Memory button visually prominent. It now lives in the
+   save row next to the active-workspace selector (no longer a direct child of
+   .aaw-memory-actions), so target it there. */
+.aaw-root .aaw-memory-save-row > .aaw-btn.accent {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.aaw-root .aaw-memory-actions .aaw-dropdown__trigger {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.aaw-section--memory .aaw-status:empty {
+  display: none;
+}
+
+/* Page Memory status tones (idle = base muted color). */
+.aaw-memory-status-line--saving {
+  color: var(--aaw-warning);
+}
+
+.aaw-memory-status-line--saved {
+  color: var(--aaw-signal);
+}
+
+.aaw-memory-status-line--error {
+  color: var(--aaw-danger);
+}
+
+.aaw-checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.aaw-checkbox-row input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--aaw-accent);
+}
+
+.aaw-page-preview {
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-subtle-fill);
+}
+
+.aaw-page-preview-title {
+  overflow: hidden;
+  color: var(--aaw-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aaw-page-preview-meta {
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+}
+
+.aaw-page-memory-list {
+  margin-top: 8px;
+}
+
+.aaw-command-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 9px;
+  background: var(--aaw-subtle-fill);
+}
+
+.aaw-source-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--aaw-text-muted);
+}
+
+/* Quiet nested panel that groups the rewrite controls under Analyze. */
+.aaw-rewrite-panel {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--aaw-border);
+  border-left: 2px solid rgba(124, 109, 255, 0.45);
+  border-radius: 8px;
+  background: var(--aaw-subtle-fill);
+}
+
+.aaw-rewrite-panel-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--aaw-text-muted);
+}
+
+.aaw-rewrite-controls {
+  display: grid;
+  gap: 8px;
+}
+
+/* Center only the rewrite controls' help/status line, not other .aaw-status. */
+.aaw-rewrite-controls > .aaw-status {
+  text-align: center;
+}
+
+.aaw-rewrite-controls--inactive {
+  opacity: 0.65;
+}
+
+.aaw-rewrite-controls--inactive .aaw-status {
+  color: var(--aaw-text-muted);
+}
+
+/* Subdued state for result toolbar buttons before real output exists. */
+.aaw-btn--subdued {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.aaw-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+}
+
+/* Goal buttons (Clearer / Shorter / Professional) share the row as equal
+   thirds so they align and the longest label does not wrap to its own line. */
+.aaw-segmented .aaw-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: center;
+}
+
+.aaw-rewrite-preview {
+  max-height: 140px;
+  margin: 0;
+}
+
+.aaw-command-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 36px;
+  padding: 7px 8px;
+  border-color: transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--aaw-text-muted);
+  text-align: center;
+  white-space: normal;
+  box-shadow: none;
+}
+
+.aaw-command-btn:hover:not(:disabled) {
+  background: var(--aaw-subtle-fill);
+  color: var(--aaw-text);
+  filter: none;
+  transform: none;
+}
+
+.aaw-command-btn.is-active {
+  background: var(--aaw-accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+.aaw-command-btn.is-active:hover:not(:disabled) {
+  background: var(--aaw-accent);
+  color: #fff;
+}
+
+.aaw-command-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.aaw-command-copy {
+  display: contents;
+}
+
+.aaw-command-title {
+  overflow: hidden;
+  min-width: 0;
+  color: currentColor;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aaw-command-subtitle {
+  display: none;
+  color: var(--aaw-text-muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+@media (max-width: 370px) {
+  .aaw-command-btn {
+    gap: 4px;
+    padding-inline: 5px;
+  }
+}
+
 /* --- Result area --- */
+.aaw-result-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+  margin-bottom: 8px;
+}
+
+/* Copy / Expand-Collapse / Clear share the row as equal thirds so they align
+   evenly and match the rewrite goal buttons' consistent sizing. */
+.aaw-result-toolbar .aaw-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 9px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.aaw-result-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  max-width: 160px;
+  padding: 3px 10px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 999px;
+  color: var(--aaw-text-muted);
+  background: var(--aaw-subtle-fill);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aaw-result-chip--working {
+  border-color: rgba(247, 201, 72, 0.45);
+  color: var(--aaw-warning);
+}
+
+.aaw-result-chip--done {
+  border-color: rgba(72, 214, 181, 0.42);
+  color: var(--aaw-signal);
+}
+
+.aaw-result-chip--error {
+  border-color: rgba(255, 77, 79, 0.5);
+  color: var(--aaw-danger);
+}
+
 .aaw-result {
   margin: 0;
-  padding: 12px;
+  padding: 13px;
   border: 1px solid var(--aaw-border);
-  border-radius: 6px;
-  background: var(--aaw-surface);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
+    var(--aaw-elevated-bg);
   color: var(--aaw-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-y: auto;
+  max-height: 240px;
+  line-height: 1.5;
+}
+
+.aaw-result:focus-visible {
+  outline: 2px solid var(--aaw-accent);
+  outline-offset: 1px;
+}
+
+.aaw-result--expanded {
+  max-height: min(62dvh, 560px);
+}
+
+.aaw-result--prose {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+}
+
+.aaw-result--code {
   font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
   font-size: 12px;
-  white-space: pre-wrap;
-  overflow-y: auto;
-  max-height: 220px;
-  line-height: 1.5;
 }
 
 .aaw-result::-webkit-scrollbar {
@@ -227,6 +830,38 @@
 .aaw-result::-webkit-scrollbar-thumb {
   background: var(--aaw-border);
   border-radius: 2px;
+}
+
+.aaw-result-copy-feedback {
+  min-height: 16px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--aaw-signal);
+}
+
+.aaw-result-copy-feedback--error {
+  color: var(--aaw-danger);
+}
+
+.aaw-provenance-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.aaw-provenance-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 3px 7px;
+  border: 1px solid rgba(72, 214, 181, 0.28);
+  border-radius: 999px;
+  background: rgba(72, 214, 181, 0.08);
+  color: var(--aaw-signal);
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 /* --- Status line --- */
@@ -240,6 +875,12 @@
   margin-bottom: 8px;
   font-size: 12px;
   color: var(--aaw-text-muted);
+}
+
+/* Compact labeled status card (reuses health-card rows) for the panel-side
+   settings summary instead of one dense run-on sentence. */
+.aaw-settings-status-card {
+  margin-bottom: 0;
 }
 
 /* --- Health card --- */
@@ -274,6 +915,22 @@
   text-align: right;
 }
 
+/* Settings status card: keep the compact labeled layout but allow long,
+   unbroken values (remote backend URLs, notes folder names) to wrap onto
+   multiple lines instead of overflowing or being clipped. */
+.aaw-settings-status-card .aaw-health-row {
+  align-items: flex-start;
+}
+
+.aaw-settings-status-card .aaw-health-row span {
+  flex: none;
+}
+
+.aaw-settings-status-card .aaw-health-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* --- Memory search results --- */
 .aaw-search-results {
   display: grid;
@@ -285,25 +942,49 @@
   padding: 10px 12px;
   border: 1px solid var(--aaw-border);
   border-radius: 8px;
-  background: var(--aaw-surface);
-  transition: border-color 150ms;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+    var(--aaw-surface);
+  transition: border-color 150ms, transform 150ms, background 150ms;
   cursor: default;
 }
 
 .aaw-memory-result:hover {
-  border-color: var(--aaw-accent);
+  border-color: rgba(124, 109, 255, 0.58);
+  transform: translateY(-1px);
+}
+
+/* Search result cards are not clickable as a whole, so suppress the hover lift
+   and accent border that would otherwise imply the card is interactive. */
+.aaw-memory-result--search:hover {
+  border-color: var(--aaw-border);
+  transform: none;
 }
 
 .aaw-memory-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   color: var(--aaw-text);
+  overflow-wrap: anywhere;
+}
+
+.aaw-memory-title a {
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.aaw-memory-title a:hover {
+  color: var(--aaw-accent-text);
+  text-decoration: underline;
 }
 
 .aaw-memory-meta {
   margin-top: 3px;
   font-size: 11px;
   color: var(--aaw-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .aaw-memory-body {
@@ -312,27 +993,750 @@
   color: var(--aaw-text);
   opacity: 0.8;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
-/* --- Settings groups --- */
-.aaw-settings-group {
+/* Visually clamp long page-memory and search previews. The full note text stays
+   in the DOM (and accessible) — only the display height is limited. */
+.aaw-page-memory-card .aaw-memory-body,
+.aaw-memory-body--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.aaw-highlight {
+  border-radius: 3px;
+  background: var(--aaw-highlight-bg);
+  color: var(--aaw-highlight-text);
+}
+
+.aaw-workspace-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.aaw-workspace-chip {
+  max-width: 100%;
+  padding: 2px 6px;
+  border: 1px solid rgba(72, 214, 181, 0.32);
+  border-radius: 999px;
+  color: var(--aaw-signal);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.aaw-search-status {
+  margin-top: 7px;
+}
+
+.aaw-search-status--degraded {
+  color: var(--aaw-warning);
+}
+
+.aaw-search-status--error {
+  color: var(--aaw-danger, #ff6b6b);
+}
+
+/* Input + clear control sit on one row; the input flexes, the clear stays fixed. */
+.aaw-search-input-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.aaw-search-input-row > input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.aaw-search-clear {
+  flex: none;
+  padding: 0 10px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.aaw-search-clear:hover {
+  border-color: rgba(124, 109, 255, 0.58);
+  color: var(--aaw-text);
+}
+
+/* Structured idle/empty/no-match/error rows inside search-results. */
+.aaw-search-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aaw-search-state-icon {
+  flex: none;
+  opacity: 0.7;
+}
+
+.aaw-search-state--error {
+  color: var(--aaw-danger, #ff6b6b);
+}
+
+/* --- Lead capture and contacts --- */
+.aaw-lead-status-line--working {
+  color: var(--aaw-warning);
+}
+
+.aaw-lead-status-line--done {
+  color: var(--aaw-signal);
+}
+
+.aaw-lead-status-line--error {
+  color: var(--aaw-danger);
+}
+
+.aaw-lead-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.aaw-lead-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+}
+
+/* Draft cards get a subtle accent edge to distinguish them from saved contacts. */
+.aaw-lead-draft-card {
+  border-left: 2px solid rgba(124, 109, 255, 0.45);
+}
+
+.aaw-lead-card-title {
+  overflow-wrap: anywhere;
+  color: var(--aaw-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.aaw-lead-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.aaw-lead-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.aaw-lead-field span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aaw-lead-field--wide {
+  grid-column: 1 / -1;
+}
+
+/* Long fields (Email/Company) go full-width once the lead card is dense, so
+   values aren't squeezed into an ellipsised half-column. */
+@container aaw-section (max-width: 360px) {
+  .aaw-lead-field--dense-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Scoped Lead Capture styling: the "linked memory" toggle sits on its own row
+   under the Capture Lead button, visually tied to the section. */
+.aaw-section--leads .aaw-lead-actions {
+  margin-bottom: 0;
+}
+
+.aaw-section--leads .aaw-lead-memory-option {
+  min-height: 0;
+  margin-top: 2px;
+  padding: 7px 10px;
+  border: 1px solid var(--aaw-border);
+  border-left: 2px solid rgba(124, 109, 255, 0.4);
+  border-radius: 8px;
+  background: var(--aaw-subtle-fill);
+}
+
+.aaw-lead-status-select {
+  min-height: 37px;
+}
+
+.aaw-contact-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(118px, 0.45fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.aaw-contact-pager {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 8px;
+}
+
+.aaw-contact-page-info {
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.aaw-linked-memory-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.aaw-linked-memory-label,
+.aaw-linked-memory-empty {
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.aaw-linked-memory-chip {
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid rgba(72, 214, 181, 0.32);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--aaw-signal);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.aaw-linked-memory-chip:hover {
+  border-color: rgba(72, 214, 181, 0.72);
+}
+
+.aaw-lead-card-actions {
+  margin-bottom: 0;
+}
+
+.aaw-empty-note {
+  padding: 8px 10px;
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+}
+
+/* --- Tasks --- */
+.aaw-task-status-line--working {
+  color: var(--aaw-warning);
+}
+
+.aaw-task-status-line--done {
+  color: var(--aaw-signal);
+}
+
+.aaw-task-status-line--error {
+  color: var(--aaw-danger);
+}
+
+/* Single column by default (narrowest panels, container < ~320px content). */
+.aaw-task-create-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* Two columns: title spans the row, due date + priority share the next row. */
+@container aaw-section (min-width: 320px) {
+  .aaw-task-create-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .aaw-task-create-grid > [data-aaw-test="task-title"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Dense three columns only where it fits without overflow (widest panels). */
+@container aaw-section (min-width: 380px) {
+  .aaw-task-create-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(112px, 0.45fr) minmax(112px, 0.45fr);
+  }
+  .aaw-task-create-grid > [data-aaw-test="task-title"] {
+    grid-column: auto;
+  }
+}
+
+.aaw-task-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+}
+
+.aaw-task-tabs .aaw-btn.is-active {
+  border-color: rgba(72, 214, 181, 0.55);
+  color: var(--aaw-signal);
+}
+
+/* Compact segmented filter: lifecycle statuses share one inset segment, and
+   the separated "All" reset sits apart so it reads as a distinct scope. */
+.aaw-task-filter {
+  align-items: center;
+  gap: 8px;
+  column-gap: 8px;
+  row-gap: 8px;
+}
+
+.aaw-task-filter-segment {
+  display: inline-flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 2px;
+  column-gap: 2px;
+  row-gap: 4px;
+  padding: 2px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 8px;
+  background: var(--aaw-subtle-fill);
+}
+
+.aaw-task-filter-segment .aaw-btn {
+  flex: 1 1 auto;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  font-size: 11px;
+}
+
+.aaw-task-filter-segment .aaw-btn.is-active {
+  border-color: transparent;
+  background: var(--aaw-surface-2);
+  color: var(--aaw-signal);
+}
+
+.aaw-task-filter .aaw-task-filter-all {
+  flex: none;
+  min-height: 28px;
+  padding: 4px 12px;
+  font-size: 11px;
+}
+
+.aaw-task-list {
+  display: grid;
+  gap: 8px;
+}
+
+.aaw-task-card {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+}
+
+.aaw-task-title {
+  overflow-wrap: anywhere;
+  color: var(--aaw-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Clamp long task titles to two lines; full text stays in the title tooltip. */
+.aaw-task-title--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Make task cards read less like a form: quieter, shorter inline controls. */
+.aaw-task-actions .aaw-task-control-group--meta select,
+.aaw-task-actions .aaw-task-control-group--meta input[type="date"] {
+  min-height: 30px;
+  background: var(--aaw-subtle-fill);
+  font-size: 12px;
+}
+
+.aaw-task-actions .aaw-btn {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* Card controls stack into predictable groups: metadata, primary action,
+   context/source actions, then the destructive action. */
+.aaw-task-actions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.aaw-task-control-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+  margin: 0;
+}
+
+.aaw-task-actions .aaw-task-control-group--meta select,
+.aaw-task-actions .aaw-task-control-group--meta input[type="date"] {
+  flex: 1 1 110px;
+  flex-shrink: 1;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.aaw-task-control-group--danger {
+  justify-content: flex-end;
+}
+
+@media (max-width: 390px) {
+  .aaw-lead-grid,
+  .aaw-contact-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Note workspaces --- */
+/* The create row now leads the section body once its toggle moved into the
+   section header, so drop the top margin and keep only the gap below it. */
+.aaw-workspace-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.aaw-workspace-picker {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.aaw-workspace-picker--open .aaw-workspace-menu {
+  transform: translateY(0) scaleY(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aaw-workspace-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 2147483647;
+  display: grid;
+  gap: 2px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 6px;
+  background: var(--aaw-surface-2);
+  box-shadow: var(--aaw-elevated-shadow);
+  transform: translateY(-6px) scaleY(0.96);
+  transform-origin: top center;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aaw-workspace-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  color: var(--aaw-text);
+  cursor: pointer;
+}
+
+.aaw-workspace-option:hover {
+  background: rgba(108, 99, 255, 0.08);
+}
+
+.aaw-workspace-option input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--aaw-accent);
+  flex-shrink: 0;
+}
+
+.aaw-workspace-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  column-gap: 8px;
+  row-gap: 8px;
   margin-bottom: 10px;
 }
 
-.aaw-settings-sublabel {
-  display: block;
-  margin-bottom: 6px;
+.aaw-workspace-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.aaw-workspace-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface);
+}
+
+.aaw-workspace-row--active {
+  border-color: var(--aaw-accent);
+  background: rgba(108, 99, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+}
+
+.aaw-workspace-row--active .aaw-workspace-name {
+  color: var(--aaw-accent-text);
+}
+
+.aaw-workspace-row--active .aaw-workspace-count {
+  background: rgba(108, 99, 255, 0.22);
+  color: var(--aaw-accent-text);
+}
+
+.aaw-workspace-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--aaw-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.aaw-workspace-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.aaw-workspace-count {
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--aaw-surface-2);
+  color: var(--aaw-text-muted);
   font-size: 11px;
+  text-align: center;
+}
+
+.aaw-workspace-empty {
+  padding: 8px 10px;
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+}
+
+.aaw-workspace-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+}
+
+.aaw-workspace-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aaw-workspace-state-icon {
+  flex: none;
+  opacity: 0.7;
+}
+
+.aaw-workspace-state--error {
+  color: var(--aaw-danger, #ff6b6b);
+}
+
+.aaw-workspace-action-reasons {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.aaw-workspace-action-help {
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+}
+
+.aaw-membership-editor,
+.aaw-note-editor {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-surface-2);
+}
+
+.aaw-note-editor {
+  gap: 8px;
+}
+
+.aaw-note-editor-label {
+  display: grid;
+  gap: 5px;
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.aaw-privacy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.aaw-privacy-clear {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 8px;
+  margin-top: 4px;
+}
+
+.aaw-privacy-events {
+  display: grid;
+  gap: 6px;
+  min-height: 24px;
+  padding-top: 2px;
+  font-size: 12px;
   color: var(--aaw-text-muted);
 }
 
-.aaw-settings-hint {
-  display: block;
-  margin-bottom: 8px;
+.aaw-privacy-event {
+  display: grid;
+  gap: 4px;
+  padding: 7px 0;
+  border-top: 1px solid var(--aaw-hairline);
+  overflow-wrap: anywhere;
+}
+
+.aaw-root .aaw-dedupe-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.aaw-root .aaw-dedupe-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.aaw-root .aaw-dedupe-list,
+.aaw-root .aaw-dedupe-audit {
+  display: grid;
+  gap: 8px;
+  min-height: 24px;
+  color: var(--aaw-text-muted);
   font-size: 12px;
+}
+
+.aaw-root .aaw-dedupe-card,
+.aaw-root .aaw-dedupe-audit-row {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 6px;
+  background: var(--aaw-surface);
+}
+
+.aaw-root .aaw-dedupe-card-head,
+.aaw-root .aaw-dedupe-audit-row {
+  align-items: start;
+}
+
+.aaw-root .aaw-dedupe-title,
+.aaw-root .aaw-dedupe-record-title {
   color: var(--aaw-text);
-  opacity: 0.85;
-  word-break: break-word;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.aaw-root .aaw-dedupe-meta,
+.aaw-root .aaw-dedupe-record-summary,
+.aaw-root .aaw-dedupe-operations,
+.aaw-root .aaw-dedupe-audit-text {
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.aaw-root .aaw-dedupe-records {
+  display: grid;
+  gap: 6px;
+}
+
+.aaw-root .aaw-dedupe-record {
+  display: grid;
+  gap: 3px;
+  padding: 6px 0;
+  border-top: 1px solid var(--aaw-hairline);
+}
+
+.aaw-root .aaw-dedupe-detail {
+  display: grid;
+  gap: 6px;
+}
+
+.aaw-root .aaw-backup-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.aaw-root .aaw-backup-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 8px;
+}
+
+.aaw-root .aaw-backup-editor {
+  min-height: 150px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 /* --- Custom Dropdown --- */
@@ -467,7 +1871,7 @@
   list-style: none;
   overflow-y: auto;
   max-height: 200px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--aaw-elevated-shadow);
 
   /* Closed state — transforms out downward + fades */
   transform: translateY(-6px) scaleY(0.96);
@@ -557,7 +1961,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Settings navigation system
+   Header icon buttons
    ───────────────────────────────────────────────────────────────────────────── */
 
 /* --- Icon-only ghost button ------------------------------------------------ */
@@ -581,13 +1985,6 @@
              a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9
              a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
              a1.65 1.65 0 0 0-1.51 1z"/>
-  </svg>
-
-  Back arrow (settings header):
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-       viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="15 18 9 12 15 6"/>
   </svg>
 */
 
@@ -637,90 +2034,13 @@
   pointer-events: none;
 }
 
-/* Active / settings-open state — icon fills with accent colour */
-.aaw-root .aaw-btn-icon--active {
-  background: rgba(108, 99, 255, 0.14);
-  color: var(--aaw-accent-text);
-  border-color: transparent;
-}
-
-.aaw-root .aaw-btn-icon--active:hover:not(:disabled) {
-  background: rgba(108, 99, 255, 0.22);
-  color: var(--aaw-accent-text);
-}
-
-/* --- Settings view header -------------------------------------------------- */
+/* --- Panel view container --------------------------------------------------- */
 
 /*
-  Drop-in replacement for .aaw-header when the settings view is active.
-  Inherits the exact same sticky/border/spacing rules; adds a three-column
-  flex layout: [back-btn] [centered heading] [phantom spacer].
-*/
-.aaw-root .aaw-settings-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 30px 1fr 30px;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 16px 12px;
-  background: var(--aaw-bg);
-  border-bottom: 1px solid var(--aaw-border);
-  margin-bottom: 16px;
-}
-
-.aaw-root .aaw-settings-header__back {
-  /* inherits .aaw-btn-icon — just applies the class in markup */
-  justify-self: start;
-}
-
-.aaw-root .aaw-settings-header__title {
-  justify-self: center;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--aaw-text);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.aaw-root .aaw-settings-header__spacer {
-  /* empty right-column placeholder keeps the title truly centred */
-  justify-self: end;
-  width: 30px;
-  height: 30px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/* Header cross-fade — main header and settings header share the same
-   sticky slot; JS toggles .aaw-header--hidden on whichever is inactive.    */
-.aaw-root .aaw-header,
-.aaw-root .aaw-settings-header {
-  transition: opacity 120ms ease-in-out;
-}
-
-.aaw-root .aaw-header--hidden,
-.aaw-root .aaw-settings-header--hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* --- Two-view slide container ---------------------------------------------- */
-
-/*
-  Structure expected in HTML:
-
-  <div class="aaw-view-container">
-    <div class="aaw-view aaw-view--main">   ...main content...   </div>
-    <div class="aaw-view aaw-view--settings aaw-view--hidden"> ...settings... </div>
-  </div>
-
-  Horizontal overflow from the off-screen views is clipped by
-  .aaw-root { overflow-x: hidden } — the container itself is overflow: visible
-  so that absolutely-positioned dropdown lists can escape downward without
-  being clipped. The panel itself (overflow-y: auto) handles vertical scrolling.
+  The panel renders a single working view inside .aaw-view-container.
+  The container stays overflow: visible so absolutely-positioned dropdown lists
+  can escape downward without being clipped; the panel itself (overflow-y: auto)
+  handles vertical scrolling.
 */
 .aaw-root .aaw-view-container {
   position: relative;
@@ -730,129 +2050,35 @@
 
 .aaw-root .aaw-view {
   width: 100%;
-  /* Views are stacked; the hidden one is pulled off-screen via translateX. */
-  will-change: transform, opacity;
-  transition:
-    transform  220ms ease-in-out,
-    opacity    220ms ease-in-out;
 }
 
-/* Visible / active state — in the viewport at rest */
-.aaw-root .aaw-view:not(.aaw-view--hidden) {
-  transform: translateX(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/*
-  Hidden / offscreen state.
-  Default direction: main slides LEFT when settings opens (hidden = went left).
-  Settings default origin: comes in FROM the right.
-
-  JS should add .aaw-view--exit-left or .aaw-view--enter-right as appropriate,
-  but sane defaults are baked in so the simplest JS (toggle .aaw-view--hidden)
-  already produces a right-to-left navigation feel.
-*/
-.aaw-root .aaw-view--hidden {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  opacity: 0;
-}
-
-/* Main view exits to the LEFT when settings opens */
-.aaw-root .aaw-view--main.aaw-view--hidden {
-  transform: translateX(-100%);
-}
-
-/* Settings view enters/exits from/to the RIGHT */
-.aaw-root .aaw-view--settings.aaw-view--hidden {
-  transform: translateX(100%);
-}
-
-/*
-  Reverse direction classes — applied by JS on the back-navigation path so
-  the animation plays in the correct direction (settings exits right → main
-  re-enters from left).  JS removes them after the transition ends.
-*/
-.aaw-root .aaw-view--main.aaw-view--entering {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.aaw-root .aaw-view--settings.aaw-view--exiting {
-  transform: translateX(100%);
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Unified header navigation transitions
-   ───────────────────────────────────────────────────────────────────────────── */
-
-/* Header needs position:relative so the abs-positioned settings title
-   is constrained to the header box (sticky is non-static, so it already
-   establishes a containing block — this comment is just for clarity).      */
+/* --- Header layout ---------------------------------------------------------- */
 
 /* Right-side button cluster in the header */
 .aaw-root .aaw-header-right {
   display: flex;
   align-items: center;
   gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
   flex-shrink: 0;
 }
 
-/* Brand group takes the remaining flex space and fades on settings open */
+.aaw-root .aaw-header-left-slot {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+
+.aaw-root .aaw-header-left-slot > .aaw-logo-mark {
+  position: absolute;
+  inset: 0;
+}
+
+/* Brand group takes the remaining flex space */
 .aaw-root .aaw-header-brand {
   flex: 1;
-  transition: opacity 120ms ease-in-out;
-}
-
-/* "Settings" heading inside the header — absolutely centred, hidden in main */
-.aaw-root .aaw-header-settings-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--aaw-text);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 120ms ease-in-out;
-  user-select: none;
-}
-
-/* Back button — hidden in main view */
-.aaw-root .aaw-btn-back {
-  flex-shrink: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease-in-out, background 150ms, color 150ms, border-color 150ms;
-}
-
-/* ── Settings-open state ───────────────────────────────────────────────────── */
-.aaw-root.aaw-settings-open .aaw-header-brand {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.aaw-root.aaw-settings-open .aaw-header-settings-title {
-  opacity: 1;
-}
-
-.aaw-root.aaw-settings-open .aaw-btn-back {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 /* ── Visually hidden (screen-reader only) ──────────────────────────────────── */
@@ -866,6 +2092,303 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.aaw-root .aaw-command-palette {
+  position: fixed;
+  top: 72px;
+  right: 18px;
+  width: min(420px, calc(100vw - 36px));
+  max-height: min(560px, calc(100vh - 104px));
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-elevated-bg);
+  box-shadow: var(--aaw-elevated-shadow);
+}
+
+.aaw-root .aaw-command-palette[hidden] {
+  display: none;
+}
+
+.aaw-root .aaw-command-palette__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--aaw-text);
+}
+
+.aaw-root .aaw-command-palette__input {
+  width: 100%;
+}
+
+.aaw-root .aaw-command-palette__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 44px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.aaw-root .aaw-command-palette__list:empty::before {
+  content: "No commands";
+  padding: 12px 10px;
+  color: var(--aaw-text-muted);
+  font-size: 13px;
+}
+
+.aaw-root .aaw-command-palette__option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--aaw-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.aaw-root .aaw-command-palette__option:hover,
+.aaw-root .aaw-command-palette__option.is-active {
+  border-color: rgba(124, 109, 255, 0.45);
+  background: rgba(124, 109, 255, 0.16);
+}
+
+.aaw-root .aaw-command-palette__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.aaw-root .aaw-command-palette__shortcut {
+  color: var(--aaw-text-muted);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.aaw-root .aaw-shortcut-list {
+  display: grid;
+  gap: 8px;
+}
+
+.aaw-root .aaw-shortcut-row {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--aaw-text-muted);
+  font-size: 12px;
+}
+
+.aaw-root .aaw-shortcut-row kbd {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  width: fit-content;
+  padding: 2px 7px;
+  border: 1px solid var(--aaw-border-input);
+  border-radius: 4px;
+  background: var(--aaw-subtle-fill);
+  color: var(--aaw-text);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.aaw-root .aaw-context-drawer {
+  position: sticky;
+  bottom: 0;
+  margin: 0 14px 14px;
+  padding: 12px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 8px;
+  background: var(--aaw-bg);
+  box-shadow: var(--aaw-elevated-shadow);
+  max-height: 42vh;
+  overflow: auto;
+  z-index: 4;
+}
+
+.aaw-root .aaw-context-drawer[hidden] {
+  display: none;
+}
+
+.aaw-root .aaw-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.aaw-root .aaw-context-title,
+.aaw-root .aaw-context-node-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--aaw-text);
+}
+
+.aaw-root .aaw-context-section {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.aaw-root .aaw-context-node,
+.aaw-root .aaw-context-edge,
+.aaw-root .aaw-context-warning {
+  padding: 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 6px;
+  background: var(--aaw-surface);
+}
+
+.aaw-root .aaw-context-edge,
+.aaw-root .aaw-context-warning {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--aaw-muted);
+}
+
+.aaw-root .aaw-context-warning {
+  color: var(--aaw-danger);
+}
+
+.aaw-root .aaw-workspace-dashboard {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.aaw-root .aaw-workspace-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 6px;
+  background: var(--aaw-surface);
+}
+
+/* Long project names truncate instead of pushing the utility actions out of
+   the side panel; the actions keep their natural width beside the title. */
+.aaw-root .aaw-workspace-dashboard-header .aaw-context-title {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.aaw-root .aaw-workspace-dashboard-header .aaw-workspace-utility-actions {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.aaw-root .aaw-workspace-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.aaw-root .aaw-workspace-metric {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--aaw-border);
+  border-radius: 999px;
+  color: var(--aaw-text-muted);
+  background: var(--aaw-surface-2);
+  font-size: 12px;
+}
+
+.aaw-root .aaw-workspace-dashboard-actions {
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+/* Metrics fold into the header as a compact summary strip (smaller chips). */
+.aaw-root .aaw-workspace-metrics--summary {
+  margin-top: 6px;
+  gap: 4px;
+}
+
+.aaw-root .aaw-workspace-metrics--summary .aaw-workspace-metric {
+  min-height: 20px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+/* Save Current Page is the dominant dashboard action. */
+.aaw-root .aaw-workspace-primary-action {
+  flex: 1 1 100%;
+}
+
+/* Archive/Reopen + Refresh are demoted housekeeping utilities. */
+.aaw-root .aaw-workspace-utility-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  column-gap: 6px;
+  row-gap: 6px;
+  margin-bottom: 0;
+}
+
+.aaw-root .aaw-workspace-utility-actions .aaw-btn {
+  min-height: 28px;
+  padding: 4px 10px;
+  color: var(--aaw-text-muted);
+  font-size: 11px;
+}
+
+/* Dashboard pane tabs: an underlined tab strip, visually distinct from the
+   pill-style workspace filter tabs so the two rows don't look identical. */
+.aaw-root .aaw-workspace-dashboard-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  column-gap: 4px;
+  row-gap: 6px;
+  margin-top: 4px;
+  padding-bottom: 2px;
+  border-top: 1px solid var(--aaw-border);
+  padding-top: 8px;
+}
+
+.aaw-root .aaw-workspace-dashboard-tabs .aaw-btn {
+  min-height: 28px;
+  padding: 4px 8px;
+  border-color: transparent;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 11px;
+}
+
+.aaw-root .aaw-workspace-dashboard-tabs .aaw-btn.accent {
+  border-bottom: 2px solid var(--aaw-accent);
+  border-radius: 6px 6px 0 0;
+  background: var(--aaw-subtle-fill);
+  color: var(--aaw-text);
+}
+
+.aaw-root .aaw-dashboard-overview {
+  display: grid;
+  gap: 6px;
 }
 
 /* ── Reduced motion — disable all transitions/animations inside the panel ──── */

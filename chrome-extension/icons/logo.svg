@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="AI Assistant Across Websites logo">
+  <defs>
+    <linearGradient id="tile" x1="9" y1="4" x2="118" y2="124" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9f96ff"/>
+      <stop offset="52%" stop-color="#6f60ff"/>
+      <stop offset="100%" stop-color="#191d28"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="29" y1="30" x2="101" y2="91" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#edeaff"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#tile)"/>
+  <circle cx="30" cy="37" r="22" fill="#48d6b5" opacity=".34"/>
+  <path d="M34 82C49 56 68 41 99 34" stroke="url(#mark)" stroke-width="24" stroke-linecap="round" fill="none"/>
+  <circle cx="33" cy="41" r="13" fill="#48d6b5"/>
+</svg>

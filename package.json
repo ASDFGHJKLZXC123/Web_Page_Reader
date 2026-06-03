@@ -3,7 +3,14 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "start": "node backend/src/server.js"
+    "start": "node backend/src/server.js",
+    "test": "node --test test/*.test.js test/e2e/helpers/*.test.js",
+    "test:unit": "node --test test/*.test.js test/e2e/helpers/*.test.js",
+    "test:e2e": "playwright test",
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "playwright:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
   }
 }
-

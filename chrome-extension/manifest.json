@@ -5,8 +5,10 @@
   "description": "Invoke an AI assistant on any webpage to summarize, extract, save memory, and run actions.",
   "permissions": [
     "activeTab",
+    "alarms",
     "scripting",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "http://*/*",
@@ -15,8 +17,34 @@
   "background": {
     "service_worker": "background.js"
   },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "action": {
-    "default_title": "Toggle Assistant"
+    "default_title": "Toggle Assistant",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+A"
+      },
+      "description": "Toggle Assistant"
+    },
+    "open-command-palette": {
+      "suggested_key": {
+        "default": "Alt+Shift+K"
+      },
+      "description": "Open Assistant command palette"
+    }
   },
   "options_ui": {
     "page": "options.html",
@@ -28,6 +56,10 @@
         "<all_urls>"
       ],
       "js": [
+        "privacy-utils.js",
+        "selection-replacement.js",
+        "shortcut-utils.js",
+        "settings-utils.js",
         "content.js"
       ],
       "css": [
